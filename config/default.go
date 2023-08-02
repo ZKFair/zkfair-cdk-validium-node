@@ -15,7 +15,7 @@ Outputs = ["stderr"]
 User = "state_user"
 Password = "state_password"
 Name = "state_db"
-Host = "zkevm-state-db"
+Host = "supernets2-state-db"
 Port = "5432"
 EnableLog = false
 MaxConns = 200
@@ -34,7 +34,7 @@ GlobalQueue = 1024
 	User = "pool_user"
 	Password = "pool_password"
 	Name = "pool_db"
-	Host = "zkevm-pool-db"
+	Host = "supernets2-pool-db"
 	Port = "5432"
 	EnableLog = false
 	MaxConns = 200
@@ -121,7 +121,7 @@ MaxTxLifetime = "3h"
 [SequenceSender]
 WaitPeriodSendSequence = "5s"
 LastBatchVirtualizationTimeMaxWaitPeriod = "5s"
-MaxTxSizeForL1 = 131072
+MaxBatchesForL1 = 1000
 SenderAddress = "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266"
 PrivateKeys = [{Path = "/pk/sequencer.keystore", Password = "testonly"}]
 
@@ -146,10 +146,10 @@ CleanHistoryPeriod = "1h"
 CleanHistoryTimeRetention = "5m"
 
 [MTClient]
-URI = "zkevm-prover:50061"
+URI = "supernets2-prover:50061"
 
 [Executor]
-URI = "zkevm-prover:50071"
+URI = "supernets2-prover:50071"
 MaxResourceExhaustedAttempts = 3
 WaitOnResourceExhaustion = "1s"
 MaxGRPCMessageSize = 100000000
@@ -163,7 +163,7 @@ Enabled = false
 User = "prover_user"
 Password = "prover_pass"
 Name = "prover_db"
-Host = "zkevm-state-db"
+Host = "supernets2-state-db"
 Port = "5432"
 EnableLog = false
 MaxConns = 200

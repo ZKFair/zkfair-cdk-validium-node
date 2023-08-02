@@ -48,6 +48,32 @@ func (_m *ethermanMock) EthBlockByNumber(ctx context.Context, blockNumber uint64
 	return r0, r1
 }
 
+// GetCurrentDataCommittee provides a mock function with given fields:
+func (_m *ethermanMock) GetCurrentDataCommittee() (*etherman.DataCommittee, error) {
+	ret := _m.Called()
+
+	var r0 *etherman.DataCommittee
+	var r1 error
+	if rf, ok := ret.Get(0).(func() (*etherman.DataCommittee, error)); ok {
+		return rf()
+	}
+	if rf, ok := ret.Get(0).(func() *etherman.DataCommittee); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*etherman.DataCommittee)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func() error); ok {
+		r1 = rf()
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // GetForks provides a mock function with given fields: ctx, genBlockNumber
 func (_m *ethermanMock) GetForks(ctx context.Context, genBlockNumber uint64) ([]state.ForkIDInterval, error) {
 	ret := _m.Called(ctx, genBlockNumber)

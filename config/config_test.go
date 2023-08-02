@@ -221,8 +221,8 @@ func Test_Defaults(t *testing.T) {
 			expectedValue: types.NewDuration(5 * time.Second),
 		},
 		{
-			path:          "SequenceSender.MaxTxSizeForL1",
-			expectedValue: uint64(131072),
+			path:          "SequenceSender.MaxBatchesForL1",
+			expectedValue: uint64(1000),
 		},
 		{
 			path:          "Etherman.URL",
@@ -230,19 +230,23 @@ func Test_Defaults(t *testing.T) {
 		},
 		{
 			path:          "NetworkConfig.L1Config.L1ChainID",
-			expectedValue: uint64(5),
+			expectedValue: uint64(1337),
 		},
 		{
-			path:          "NetworkConfig.L1Config.ZkEVMAddr",
-			expectedValue: common.HexToAddress("0xa997cfD539E703921fD1e3Cf25b4c241a27a4c7A"),
+			path:          "NetworkConfig.L1Config.Supernets2Addr",
+			expectedValue: common.HexToAddress("0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82"),
 		},
 		{
 			path:          "NetworkConfig.L1Config.MaticAddr",
-			expectedValue: common.HexToAddress("0x1319D23c2F7034F52Eb07399702B040bA278Ca49"),
+			expectedValue: common.HexToAddress("0x5FbDB2315678afecb367f032d93F642f64180aa3"),
 		},
 		{
 			path:          "NetworkConfig.L1Config.GlobalExitRootManagerAddr",
-			expectedValue: common.HexToAddress("0x4d9427DCA0406358445bC0a8F88C26b704004f74"),
+			expectedValue: common.HexToAddress("0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e"),
+		},
+		{
+			path:          "NetworkConfig.L1Config.DataCommitteeAddr",
+			expectedValue: common.HexToAddress("0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6"),
 		},
 		{
 			path:          "Etherman.MultiGasProvider",
@@ -274,7 +278,7 @@ func Test_Defaults(t *testing.T) {
 		},
 		{
 			path:          "MTClient.URI",
-			expectedValue: "zkevm-prover:50061",
+			expectedValue: "supernets2-prover:50061",
 		},
 		{
 			path:          "StateDB.User",
@@ -290,7 +294,7 @@ func Test_Defaults(t *testing.T) {
 		},
 		{
 			path:          "StateDB.Host",
-			expectedValue: "zkevm-state-db",
+			expectedValue: "supernets2-state-db",
 		},
 		{
 			path:          "StateDB.Port",
@@ -351,7 +355,7 @@ func Test_Defaults(t *testing.T) {
 		},
 		{
 			path:          "Pool.DB.Host",
-			expectedValue: "zkevm-pool-db",
+			expectedValue: "supernets2-pool-db",
 		},
 		{
 			path:          "Pool.DB.Port",
@@ -407,7 +411,7 @@ func Test_Defaults(t *testing.T) {
 		},
 		{
 			path:          "Executor.URI",
-			expectedValue: "zkevm-prover:50071",
+			expectedValue: "supernets2-prover:50071",
 		},
 		{
 			path:          "Executor.MaxResourceExhaustedAttempts",
@@ -478,7 +482,8 @@ func Test_Defaults(t *testing.T) {
 	require.NoError(t, os.WriteFile(file.Name(), []byte("{}"), 0600))
 
 	flagSet := flag.NewFlagSet("", flag.PanicOnError)
-	flagSet.String(config.FlagNetwork, "testnet", "")
+	flagSet.String(config.FlagNetwork, "custom", "")
+	flagSet.String(config.FlagCustomNetwork, "../test/config/test.genesis.config.json", "")
 	ctx := cli.NewContext(cli.NewApp(), flagSet, nil)
 	cfg, err := config.Load(ctx, true)
 	if err != nil {
@@ -509,19 +514,14 @@ func getValueFromStruct(path string, object interface{}) interface{} {
 }
 
 func TestEnvVarArrayDecoding(t *testing.T) {
-	file, err := os.CreateTemp("", "genesisConfig")
-	require.NoError(t, err)
-	defer func() {
-		require.NoError(t, os.Remove(file.Name()))
-	}()
-	require.NoError(t, os.WriteFile(file.Name(), []byte("{}"), 0600))
 	flagSet := flag.NewFlagSet("", flag.PanicOnError)
-	flagSet.String(config.FlagNetwork, "testnet", "")
+	flagSet.String(config.FlagNetwork, "custom", "")
+	flagSet.String(config.FlagCustomNetwork, "../test/config/test.genesis.config.json", "")
 	ctx := cli.NewContext(cli.NewApp(), flagSet, nil)
 
-	os.Setenv("ZKEVM_NODE_LOG_OUTPUTS", "a,b,c")
+	os.Setenv("SUPERNETS2_NODE_LOG_OUTPUTS", "a,b,c")
 	defer func() {
-		os.Unsetenv("ZKEVM_NODE_LOG_OUTPUTS")
+		os.Unsetenv("SUPERNETS2_NODE_LOG_OUTPUTS")
 	}()
 
 	cfg, err := config.Load(ctx, true)

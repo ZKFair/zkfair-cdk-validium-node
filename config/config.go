@@ -154,7 +154,7 @@ func Load(ctx *cli.Context, loadNetworkConfig bool) (*Config, error) {
 	viper.AutomaticEnv()
 	replacer := strings.NewReplacer(".", "_")
 	viper.SetEnvKeyReplacer(replacer)
-	viper.SetEnvPrefix("ZKEVM_NODE")
+	viper.SetEnvPrefix("SUPERNETS2_NODE")
 	err = viper.ReadInConfig()
 	if err != nil {
 		_, ok := err.(viper.ConfigFileNotFoundError)

@@ -8,8 +8,9 @@ gen() {
     abigen --bin bin/${package}.bin --abi abi/${package}.abi --pkg=${package} --out=${package}/${package}.go
 }
 
-gen polygonzkevm
+gen supernets2
 gen polygonzkevmbridge
 gen matic
-gen polygonzkevmglobalexitroot
 gen mockverifier
+gen polygonzkevmglobalexitroot
+gen supernets2datacommittee
