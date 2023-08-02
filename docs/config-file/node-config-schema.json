@@ -194,7 +194,7 @@
 						"Host": {
 							"type": "string",
 							"description": "Host address of database",
-							"default": "zkevm-pool-db"
+							"default": "supernets2-pool-db"
 						},
 						"Port": {
 							"type": "string",
@@ -707,10 +707,10 @@
 						"300ms"
 					]
 				},
-				"MaxTxSizeForL1": {
+				"MaxBatchesForL1": {
 					"type": "integer",
-					"description": "MaxTxSizeForL1 is the maximum size a single transaction can have. This field has\nnon-trivial consequences: larger transactions than 128KB are significantly harder and\nmore expensive to propagate; larger transactions also take more resources\nto validate whether they fit into the pool or not.",
-					"default": 131072
+					"description": "MaxBatchesForL1 is the maximum amount of batches to be sequenced in a single L1 tx",
+					"default": 1000
 				},
 				"SenderAddress": {
 					"type": "string",
@@ -859,7 +859,7 @@
 							"description": "Chain ID of the L1 network",
 							"default": 0
 						},
-						"polygonZkEVMAddress": {
+						"supernets2Address": {
 							"items": {
 								"type": "integer"
 							},
@@ -885,6 +885,15 @@
 							"maxItems": 20,
 							"minItems": 20,
 							"description": "Address of the L1 GlobalExitRootManager contract"
+						},
+						"supernets2DataCommitteeContract": {
+							"items": {
+								"type": "integer"
+							},
+							"type": "array",
+							"maxItems": 20,
+							"minItems": 20,
+							"description": "Address of the data availability committee contract"
 						}
 					},
 					"additionalProperties": false,
@@ -1041,7 +1050,7 @@
 			"properties": {
 				"URI": {
 					"type": "string",
-					"default": "zkevm-prover:50071"
+					"default": "supernets2-prover:50071"
 				},
 				"MaxResourceExhaustedAttempts": {
 					"type": "integer",
@@ -1072,7 +1081,7 @@
 				"URI": {
 					"type": "string",
 					"description": "URI is the server URI.",
-					"default": "zkevm-prover:50061"
+					"default": "supernets2-prover:50061"
 				}
 			},
 			"additionalProperties": false,
@@ -1099,7 +1108,7 @@
 				"Host": {
 					"type": "string",
 					"description": "Host address of database",
-					"default": "zkevm-state-db"
+					"default": "supernets2-state-db"
 				},
 				"Port": {
 					"type": "string",
@@ -1227,7 +1236,7 @@
 				"Host": {
 					"type": "string",
 					"description": "Host address of database",
-					"default": "zkevm-state-db"
+					"default": "supernets2-state-db"
 				},
 				"Port": {
 					"type": "string",
