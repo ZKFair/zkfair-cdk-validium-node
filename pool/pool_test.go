@@ -653,7 +653,10 @@ func Test_SetAndGetGasPrice(t *testing.T) {
 
 	nBig, err := rand.Int(rand.Reader, big.NewInt(0).SetUint64(math.MaxUint64))
 	require.NoError(t, err)
-	expectedGasPrice := pool.GasPrices{nBig.Uint64(), nBig.Uint64()}
+	expectedGasPrice := pool.GasPrices{
+		L2GasPrice: nBig.Uint64(),
+		L1GasPrice: nBig.Uint64(),
+	}
 	ctx := context.Background()
 	err = p.SetGasPrices(ctx, expectedGasPrice.L2GasPrice, expectedGasPrice.L1GasPrice)
 	require.NoError(t, err)
