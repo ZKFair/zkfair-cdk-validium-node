@@ -495,14 +495,14 @@ Password="pool_password"
 
 **Type:** : `string`
 
-**Default:** `"zkevm-pool-db"`
+**Default:** `"supernets2-pool-db"`
 
 **Description:** Host address of database
 
-**Example setting the default value** ("zkevm-pool-db"):
+**Example setting the default value** ("supernets2-pool-db"):
 ```
 [Pool.DB]
-Host="zkevm-pool-db"
+Host="supernets2-pool-db"
 ```
 
 #### <a name="Pool_DB_Port"></a>7.5.5. `Pool.DB.Port`
@@ -1797,14 +1797,14 @@ DefaultMinGasPriceAllowed=0
 **Type:** : `object`
 **Description:** Configuration of the sequence sender service
 
-| Property                                                                                                | Pattern | Type            | Deprecated | Definition | Title/Description                                                                                                                                                                                                                                                                                                  |
-| ------------------------------------------------------------------------------------------------------- | ------- | --------------- | ---------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| - [WaitPeriodSendSequence](#SequenceSender_WaitPeriodSendSequence )                                     | No      | string          | No         | -          | Duration                                                                                                                                                                                                                                                                                                           |
-| - [LastBatchVirtualizationTimeMaxWaitPeriod](#SequenceSender_LastBatchVirtualizationTimeMaxWaitPeriod ) | No      | string          | No         | -          | Duration                                                                                                                                                                                                                                                                                                           |
-| - [MaxTxSizeForL1](#SequenceSender_MaxTxSizeForL1 )                                                     | No      | integer         | No         | -          | MaxTxSizeForL1 is the maximum size a single transaction can have. This field has<br />non-trivial consequences: larger transactions than 128KB are significantly harder and<br />more expensive to propagate; larger transactions also take more resources<br />to validate whether they fit into the pool or not. |
-| - [SenderAddress](#SequenceSender_SenderAddress )                                                       | No      | string          | No         | -          | SenderAddress defines which private key the eth tx manager needs to use<br />to sign the L1 txs                                                                                                                                                                                                                    |
-| - [PrivateKeys](#SequenceSender_PrivateKeys )                                                           | No      | array of object | No         | -          | PrivateKeys defines all the key store files that are going<br />to be read in order to provide the private keys to sign the L1 txs                                                                                                                                                                                 |
-| - [ForkUpgradeBatchNumber](#SequenceSender_ForkUpgradeBatchNumber )                                     | No      | integer         | No         | -          | Batch number where there is a forkid change (fork upgrade)                                                                                                                                                                                                                                                         |
+| Property                                                                                                | Pattern | Type            | Deprecated | Definition | Title/Description                                                                                                                  |
+| ------------------------------------------------------------------------------------------------------- | ------- | --------------- | ---------- | ---------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| - [WaitPeriodSendSequence](#SequenceSender_WaitPeriodSendSequence )                                     | No      | string          | No         | -          | Duration                                                                                                                           |
+| - [LastBatchVirtualizationTimeMaxWaitPeriod](#SequenceSender_LastBatchVirtualizationTimeMaxWaitPeriod ) | No      | string          | No         | -          | Duration                                                                                                                           |
+| - [MaxBatchesForL1](#SequenceSender_MaxBatchesForL1 )                                                   | No      | integer         | No         | -          | MaxBatchesForL1 is the maximum amount of batches to be sequenced in a single L1 tx                                                 |
+| - [SenderAddress](#SequenceSender_SenderAddress )                                                       | No      | string          | No         | -          | SenderAddress defines which private key the eth tx manager needs to use<br />to sign the L1 txs                                    |
+| - [PrivateKeys](#SequenceSender_PrivateKeys )                                                           | No      | array of object | No         | -          | PrivateKeys defines all the key store files that are going<br />to be read in order to provide the private keys to sign the L1 txs |
+| - [ForkUpgradeBatchNumber](#SequenceSender_ForkUpgradeBatchNumber )                                     | No      | integer         | No         | -          | Batch number where there is a forkid change (fork upgrade)                                                                         |
 
 ### <a name="SequenceSender_WaitPeriodSendSequence"></a>11.1. `SequenceSender.WaitPeriodSendSequence`
 
@@ -1859,21 +1859,18 @@ WaitPeriodSendSequence="5s"
 LastBatchVirtualizationTimeMaxWaitPeriod="5s"
 ```
 
-### <a name="SequenceSender_MaxTxSizeForL1"></a>11.3. `SequenceSender.MaxTxSizeForL1`
+### <a name="SequenceSender_MaxBatchesForL1"></a>11.3. `SequenceSender.MaxBatchesForL1`
 
 **Type:** : `integer`
 
-**Default:** `131072`
+**Default:** `1000`
 
-**Description:** MaxTxSizeForL1 is the maximum size a single transaction can have. This field has
-non-trivial consequences: larger transactions than 128KB are significantly harder and
-more expensive to propagate; larger transactions also take more resources
-to validate whether they fit into the pool or not.
+**Description:** MaxBatchesForL1 is the maximum amount of batches to be sequenced in a single L1 tx
 
-**Example setting the default value** (131072):
+**Example setting the default value** (1000):
 ```
 [SequenceSender]
-MaxTxSizeForL1=131072
+MaxBatchesForL1=1000
 ```
 
 ### <a name="SequenceSender_SenderAddress"></a>11.4. `SequenceSender.SenderAddress`
@@ -2229,12 +2226,13 @@ GeneratingProofCleanupThreshold="10m"
 **Type:** : `object`
 **Description:** L1: Configuration related to L1
 
-| Property                                                                                          | Pattern | Type             | Deprecated | Definition | Title/Description                                |
-| ------------------------------------------------------------------------------------------------- | ------- | ---------------- | ---------- | ---------- | ------------------------------------------------ |
-| - [chainId](#NetworkConfig_l1Config_chainId )                                                     | No      | integer          | No         | -          | Chain ID of the L1 network                       |
-| - [polygonZkEVMAddress](#NetworkConfig_l1Config_polygonZkEVMAddress )                             | No      | array of integer | No         | -          | Address of the L1 contract                       |
-| - [maticTokenAddress](#NetworkConfig_l1Config_maticTokenAddress )                                 | No      | array of integer | No         | -          | Address of the L1 Matic token Contract           |
-| - [polygonZkEVMGlobalExitRootAddress](#NetworkConfig_l1Config_polygonZkEVMGlobalExitRootAddress ) | No      | array of integer | No         | -          | Address of the L1 GlobalExitRootManager contract |
+| Property                                                                                          | Pattern | Type             | Deprecated | Definition | Title/Description                                   |
+| ------------------------------------------------------------------------------------------------- | ------- | ---------------- | ---------- | ---------- | --------------------------------------------------- |
+| - [chainId](#NetworkConfig_l1Config_chainId )                                                     | No      | integer          | No         | -          | Chain ID of the L1 network                          |
+| - [supernets2Address](#NetworkConfig_l1Config_supernets2Address )                                 | No      | array of integer | No         | -          | Address of the L1 contract                          |
+| - [maticTokenAddress](#NetworkConfig_l1Config_maticTokenAddress )                                 | No      | array of integer | No         | -          | Address of the L1 Matic token Contract              |
+| - [polygonZkEVMGlobalExitRootAddress](#NetworkConfig_l1Config_polygonZkEVMGlobalExitRootAddress ) | No      | array of integer | No         | -          | Address of the L1 GlobalExitRootManager contract    |
+| - [supernets2DataCommitteeContract](#NetworkConfig_l1Config_supernets2DataCommitteeContract )     | No      | array of integer | No         | -          | Address of the data availability committee contract |
 
 #### <a name="NetworkConfig_l1Config_chainId"></a>13.1.1. `NetworkConfig.l1Config.chainId`
 
@@ -2250,7 +2248,7 @@ GeneratingProofCleanupThreshold="10m"
 chainId=0
 ```
 
-#### <a name="NetworkConfig_l1Config_polygonZkEVMAddress"></a>13.1.2. `NetworkConfig.l1Config.polygonZkEVMAddress`
+#### <a name="NetworkConfig_l1Config_supernets2Address"></a>13.1.2. `NetworkConfig.l1Config.supernets2Address`
 
 **Type:** : `array of integer`
 **Description:** Address of the L1 contract
@@ -2264,6 +2262,11 @@ chainId=0
 
 **Type:** : `array of integer`
 **Description:** Address of the L1 GlobalExitRootManager contract
+
+#### <a name="NetworkConfig_l1Config_supernets2DataCommitteeContract"></a>13.1.5. `NetworkConfig.l1Config.supernets2DataCommitteeContract`
+
+**Type:** : `array of integer`
+**Description:** Address of the data availability committee contract
 
 ### <a name="NetworkConfig_L2GlobalExitRootManagerAddr"></a>13.2. `NetworkConfig.L2GlobalExitRootManagerAddr`
 
@@ -2556,12 +2559,12 @@ Factor=0.15
 
 **Type:** : `string`
 
-**Default:** `"zkevm-prover:50071"`
+**Default:** `"supernets2-prover:50071"`
 
-**Example setting the default value** ("zkevm-prover:50071"):
+**Example setting the default value** ("supernets2-prover:50071"):
 ```
 [Executor]
-URI="zkevm-prover:50071"
+URI="supernets2-prover:50071"
 ```
 
 ### <a name="Executor_MaxResourceExhaustedAttempts"></a>15.2. `Executor.MaxResourceExhaustedAttempts`
@@ -2629,14 +2632,14 @@ MaxGRPCMessageSize=100000000
 
 **Type:** : `string`
 
-**Default:** `"zkevm-prover:50061"`
+**Default:** `"supernets2-prover:50061"`
 
 **Description:** URI is the server URI.
 
-**Example setting the default value** ("zkevm-prover:50061"):
+**Example setting the default value** ("supernets2-prover:50061"):
 ```
 [MTClient]
-URI="zkevm-prover:50061"
+URI="supernets2-prover:50061"
 ```
 
 ## <a name="StateDB"></a>17. `[StateDB]`
@@ -2700,14 +2703,14 @@ Password="state_password"
 
 **Type:** : `string`
 
-**Default:** `"zkevm-state-db"`
+**Default:** `"supernets2-state-db"`
 
 **Description:** Host address of database
 
-**Example setting the default value** ("zkevm-state-db"):
+**Example setting the default value** ("supernets2-state-db"):
 ```
 [StateDB]
-Host="zkevm-state-db"
+Host="supernets2-state-db"
 ```
 
 ### <a name="StateDB_Port"></a>17.5. `StateDB.Port`
@@ -3033,14 +3036,14 @@ Password="prover_pass"
 
 **Type:** : `string`
 
-**Default:** `"zkevm-state-db"`
+**Default:** `"supernets2-state-db"`
 
 **Description:** Host address of database
 
-**Example setting the default value** ("zkevm-state-db"):
+**Example setting the default value** ("supernets2-state-db"):
 ```
 [HashDB]
-Host="zkevm-state-db"
+Host="supernets2-state-db"
 ```
 
 ### <a name="HashDB_Port"></a>20.5. `HashDB.Port`

@@ -653,7 +653,10 @@ func Test_SetAndGetGasPrice(t *testing.T) {
 
 	nBig, err := rand.Int(rand.Reader, big.NewInt(0).SetUint64(math.MaxUint64))
 	require.NoError(t, err)
-	expectedGasPrice := pool.GasPrices{nBig.Uint64(), nBig.Uint64()}
+	expectedGasPrice := pool.GasPrices{
+		L2GasPrice: nBig.Uint64(),
+		L1GasPrice: nBig.Uint64(),
+	}
 	ctx := context.Background()
 	err = p.SetGasPrices(ctx, expectedGasPrice.L2GasPrice, expectedGasPrice.L1GasPrice)
 	require.NoError(t, err)
@@ -1785,6 +1788,65 @@ func Test_AddTx_NonceTooHigh(t *testing.T) {
 
 	err = p.AddTx(ctx, *signedTx, "")
 	require.Error(t, err, pool.ErrNonceTooHigh)
+}
+
+func Test_PolicyAcl(t *testing.T) {
+	initOrResetDB(t)
+
+	poolSqlDB, err := db.NewSQLDB(poolDBCfg)
+	require.NoError(t, err)
+	defer poolSqlDB.Close() //nolint:gosec,errcheck
+
+	ctx := context.Background()
+	s, err := pgpoolstorage.NewPostgresPoolStorage(poolDBCfg)
+	require.NoError(t, err)
+
+	p := pool.NewPool(cfg, s, nil, uint64(1), nil)
+
+	addr1 := common.HexToAddress("0x1")
+	addr2 := common.HexToAddress("0x2")
+	addr3 := common.HexToAddress("0x3")
+
+	for _, policy := range []pool.PolicyName{pool.SendTx, pool.Deploy} {
+		allow, err := p.CheckPolicy(ctx, policy, addr1)
+		require.NoError(t, err)
+		require.True(t, allow) // default is to allow
+	}
+
+	// put addr on lists
+	for _, policy := range []pool.PolicyName{pool.SendTx, pool.Deploy} {
+		ctag, err := poolSqlDB.Exec(ctx, "INSERT INTO pool.acl (policy, address) VALUES ($1,$2)", policy, addr1.Hex())
+		require.NoError(t, err)
+		require.Equal(t, int64(1), ctag.RowsAffected())
+	}
+
+	// list members are now denied
+	for _, policy := range []pool.PolicyName{pool.SendTx, pool.Deploy} {
+		allow, err := p.CheckPolicy(ctx, policy, addr1)
+		require.NoError(t, err)
+		require.False(t, allow) // default is to allow
+	}
+
+	// change policies to deny by default
+	ctag, err := poolSqlDB.Exec(ctx, "UPDATE pool.policy SET allow = false")
+	require.NoError(t, err)
+	require.Equal(t, int64(2), ctag.RowsAffected())
+
+	// list members are now allowed
+	for _, policy := range []pool.PolicyName{pool.SendTx, pool.Deploy} {
+		allow, err := p.CheckPolicy(ctx, policy, addr1)
+		require.NoError(t, err)
+		require.True(t, allow)
+	}
+
+	// randos are now denied
+	for _, policy := range []pool.PolicyName{pool.SendTx, pool.Deploy} {
+		for _, a := range []common.Address{addr2, addr3} {
+			allow, err := s.CheckPolicy(ctx, policy, a)
+			require.NoError(t, err)
+			require.False(t, allow)
+		}
+	}
 }
 
 func setupPool(t *testing.T, cfg pool.Config, s *pgpoolstorage.PostgresPoolStorage, st *state.State, chainID uint64, ctx context.Context, eventLog *event.EventLog) *pool.Pool {

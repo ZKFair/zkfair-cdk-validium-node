@@ -2,6 +2,7 @@ package etherman
 
 import (
 	"context"
+	"crypto/ecdsa"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -17,8 +18,9 @@ import (
 	"github.com/0xPolygonHermez/zkevm-node/etherman/ethgasstation"
 	"github.com/0xPolygonHermez/zkevm-node/etherman/metrics"
 	"github.com/0xPolygonHermez/zkevm-node/etherman/smartcontracts/matic"
-	"github.com/0xPolygonHermez/zkevm-node/etherman/smartcontracts/polygonzkevm"
 	"github.com/0xPolygonHermez/zkevm-node/etherman/smartcontracts/polygonzkevmglobalexitroot"
+	"github.com/0xPolygonHermez/zkevm-node/etherman/smartcontracts/supernets2"
+	"github.com/0xPolygonHermez/zkevm-node/etherman/smartcontracts/supernets2datacommittee"
 	ethmanTypes "github.com/0xPolygonHermez/zkevm-node/etherman/types"
 	"github.com/0xPolygonHermez/zkevm-node/log"
 	"github.com/0xPolygonHermez/zkevm-node/state"
@@ -47,7 +49,7 @@ var (
 	transferOwnershipSignatureHash                 = crypto.Keccak256Hash([]byte("OwnershipTransferred(address,address)"))
 	emergencyStateActivatedSignatureHash           = crypto.Keccak256Hash([]byte("EmergencyStateActivated()"))
 	emergencyStateDeactivatedSignatureHash         = crypto.Keccak256Hash([]byte("EmergencyStateDeactivated()"))
-	updateZkEVMVersionSignatureHash                = crypto.Keccak256Hash([]byte("UpdateZkEVMVersion(uint64,uint64,string)"))
+	updateZkEVMVersionSignatureHash                = crypto.Keccak256Hash([]byte("UpdateSupernets2Version(uint64,uint64,string)"))
 	consolidatePendingStateSignatureHash           = crypto.Keccak256Hash([]byte("ConsolidatePendingState(uint64,bytes32,uint64)"))
 	setTrustedAggregatorTimeoutSignatureHash       = crypto.Keccak256Hash([]byte("SetTrustedAggregatorTimeout(uint64)"))
 	setTrustedAggregatorSignatureHash              = crypto.Keccak256Hash([]byte("SetTrustedAggregator(address)"))
@@ -118,11 +120,13 @@ type L1Config struct {
 	// Chain ID of the L1 network
 	L1ChainID uint64 `json:"chainId"`
 	// Address of the L1 contract
-	ZkEVMAddr common.Address `json:"polygonZkEVMAddress"`
+	Supernets2Addr common.Address `json:"supernets2Address"`
 	// Address of the L1 Matic token Contract
 	MaticAddr common.Address `json:"maticTokenAddress"`
 	// Address of the L1 GlobalExitRootManager contract
 	GlobalExitRootManagerAddr common.Address `json:"polygonZkEVMGlobalExitRootAddress"`
+	// Address of the data availability committee contract
+	DataCommitteeAddr common.Address `json:"supernets2DataCommitteeContract"`
 }
 
 type externalGasProviders struct {
@@ -133,9 +137,10 @@ type externalGasProviders struct {
 // Client is a simple implementation of EtherMan.
 type Client struct {
 	EthClient             ethereumClient
-	ZkEVM                 *polygonzkevm.Polygonzkevm
+	Supernets2            *supernets2.Supernets2
 	GlobalExitRootManager *polygonzkevmglobalexitroot.Polygonzkevmglobalexitroot
 	Matic                 *matic.Matic
+	DataCommittee         *supernets2datacommittee.Supernets2datacommittee
 	SCAddresses           []common.Address
 
 	GasProviders externalGasProviders
@@ -153,7 +158,7 @@ func NewClient(cfg Config, l1Config L1Config) (*Client, error) {
 		return nil, err
 	}
 	// Create smc clients
-	poe, err := polygonzkevm.NewPolygonzkevm(l1Config.ZkEVMAddr, ethClient)
+	poe, err := supernets2.NewSupernets2(l1Config.Supernets2Addr, ethClient)
 	if err != nil {
 		return nil, err
 	}
@@ -165,8 +170,12 @@ func NewClient(cfg Config, l1Config L1Config) (*Client, error) {
 	if err != nil {
 		return nil, err
 	}
+	dataCommittee, err := supernets2datacommittee.NewSupernets2datacommittee(l1Config.DataCommitteeAddr, ethClient)
+	if err != nil {
+		return nil, err
+	}
 	var scAddresses []common.Address
-	scAddresses = append(scAddresses, l1Config.ZkEVMAddr, l1Config.GlobalExitRootManagerAddr)
+	scAddresses = append(scAddresses, l1Config.Supernets2Addr, l1Config.GlobalExitRootManagerAddr)
 
 	gProviders := []ethereum.GasPricer{ethClient}
 	if cfg.MultiGasProvider {
@@ -182,9 +191,10 @@ func NewClient(cfg Config, l1Config L1Config) (*Client, error) {
 
 	return &Client{
 		EthClient:             ethClient,
-		ZkEVM:                 poe,
+		Supernets2:            poe,
 		Matic:                 matic,
 		GlobalExitRootManager: globalExitRoot,
+		DataCommittee:         dataCommittee,
 		SCAddresses:           scAddresses,
 		GasProviders: externalGasProviders{
 			MultiGasProvider: cfg.MultiGasProvider,
@@ -214,7 +224,7 @@ func (etherMan *Client) VerifyGenBlockNumber(ctx context.Context, genBlockNumber
 	if len(logs) == 0 {
 		return false, fmt.Errorf("the specified genBlockNumber in config file does not contain any forkID event. Please use the proper blockNumber.")
 	}
-	zkevmVersion, err := etherMan.ZkEVM.ParseUpdateZkEVMVersion(logs[0])
+	zkevmVersion, err := etherMan.Supernets2.ParseUpdateSupernets2Version(logs[0])
 	if err != nil {
 		log.Error("error parsing the forkID event")
 		return false, err
@@ -242,7 +252,7 @@ func (etherMan *Client) GetForks(ctx context.Context, genBlockNumber uint64) ([]
 	}
 	var forks []state.ForkIDInterval
 	for i, l := range logs {
-		zkevmVersion, err := etherMan.ZkEVM.ParseUpdateZkEVMVersion(l)
+		zkevmVersion, err := etherMan.Supernets2.ParseUpdateSupernets2Version(l)
 		if err != nil {
 			return []state.ForkIDInterval{}, err
 		}
@@ -406,7 +416,7 @@ func (etherMan *Client) processEvent(ctx context.Context, vLog types.Log, blocks
 
 func (etherMan *Client) updateZkevmVersion(ctx context.Context, vLog types.Log, blocks *[]Block, blocksOrder *map[common.Hash][]Order) error {
 	log.Debug("UpdateZkEVMVersion event detected")
-	zkevmVersion, err := etherMan.ZkEVM.ParseUpdateZkEVMVersion(vLog)
+	zkevmVersion, err := etherMan.Supernets2.ParseUpdateSupernets2Version(vLog)
 	if err != nil {
 		log.Error("error parsing UpdateZkEVMVersion event. Error: ", err)
 		return err
@@ -487,14 +497,18 @@ func (etherMan *Client) WaitTxToBeMined(ctx context.Context, tx *types.Transacti
 }
 
 // EstimateGasSequenceBatches estimates gas for sending batches
-func (etherMan *Client) EstimateGasSequenceBatches(sender common.Address, sequences []ethmanTypes.Sequence) (*types.Transaction, error) {
+func (etherMan *Client) EstimateGasSequenceBatches(
+	sender common.Address,
+	sequences []ethmanTypes.Sequence,
+	committeeSignaturesAndAddrs []byte,
+) (*types.Transaction, error) {
 	opts, err := etherMan.getAuthByAddress(sender)
 	if err == ErrNotFound {
 		return nil, ErrPrivateKeyNotFound
 	}
 	opts.NoSend = true
 
-	tx, err := etherMan.sequenceBatches(opts, sequences)
+	tx, err := etherMan.sequenceBatches(opts, sequences, committeeSignaturesAndAddrs)
 	if err != nil {
 		return nil, err
 	}
@@ -503,7 +517,11 @@ func (etherMan *Client) EstimateGasSequenceBatches(sender common.Address, sequen
 }
 
 // BuildSequenceBatchesTxData builds a []bytes to be sent to the PoE SC method SequenceBatches.
-func (etherMan *Client) BuildSequenceBatchesTxData(sender common.Address, sequences []ethmanTypes.Sequence) (to *common.Address, data []byte, err error) {
+func (etherMan *Client) BuildSequenceBatchesTxData(
+	sender common.Address,
+	sequences []ethmanTypes.Sequence,
+	committeeSignaturesAndAddrs []byte,
+) (to *common.Address, data []byte, err error) {
 	opts, err := etherMan.getAuthByAddress(sender)
 	if err == ErrNotFound {
 		return nil, nil, fmt.Errorf("failed to build sequence batches, err: %w", ErrPrivateKeyNotFound)
@@ -514,7 +532,7 @@ func (etherMan *Client) BuildSequenceBatchesTxData(sender common.Address, sequen
 	opts.GasLimit = uint64(1)
 	opts.GasPrice = big.NewInt(1)
 
-	tx, err := etherMan.sequenceBatches(opts, sequences)
+	tx, err := etherMan.sequenceBatches(opts, sequences, committeeSignaturesAndAddrs)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -522,11 +540,15 @@ func (etherMan *Client) BuildSequenceBatchesTxData(sender common.Address, sequen
 	return tx.To(), tx.Data(), nil
 }
 
-func (etherMan *Client) sequenceBatches(opts bind.TransactOpts, sequences []ethmanTypes.Sequence) (*types.Transaction, error) {
-	var batches []polygonzkevm.PolygonZkEVMBatchData
+func (etherMan *Client) sequenceBatches(
+	opts bind.TransactOpts,
+	sequences []ethmanTypes.Sequence,
+	committeeSignaturesAndAddrs []byte,
+) (*types.Transaction, error) {
+	var batches []supernets2.Supernets2BatchData
 	for _, seq := range sequences {
-		batch := polygonzkevm.PolygonZkEVMBatchData{
-			Transactions:       seq.BatchL2Data,
+		batch := supernets2.Supernets2BatchData{
+			TransactionsHash:   crypto.Keccak256Hash(seq.BatchL2Data),
 			GlobalExitRoot:     seq.GlobalExitRoot,
 			Timestamp:          uint64(seq.Timestamp),
 			MinForcedTimestamp: uint64(seq.ForcedBatchTimestamp),
@@ -535,11 +557,15 @@ func (etherMan *Client) sequenceBatches(opts bind.TransactOpts, sequences []ethm
 		batches = append(batches, batch)
 	}
 
-	tx, err := etherMan.ZkEVM.SequenceBatches(&opts, batches, opts.From)
+	tx, err := etherMan.Supernets2.SequenceBatches(&opts, batches, opts.From, committeeSignaturesAndAddrs)
 	if err != nil {
 		if parsedErr, ok := tryParseError(err); ok {
 			err = parsedErr
 		}
+		err = fmt.Errorf(
+			"error sequencing batches: %w, committeeSignaturesAndAddrs %s",
+			err, common.Bytes2Hex(committeeSignaturesAndAddrs),
+		)
 	}
 
 	return tx, err
@@ -571,7 +597,7 @@ func (etherMan *Client) BuildTrustedVerifyBatchesTxData(lastVerifiedBatch, newVe
 
 	const pendStateNum = 0 // TODO hardcoded for now until we implement the pending state feature
 
-	tx, err := etherMan.ZkEVM.VerifyBatchesTrustedAggregator(
+	tx, err := etherMan.Supernets2.VerifyBatchesTrustedAggregator(
 		&opts,
 		pendStateNum,
 		lastVerifiedBatch,
@@ -611,7 +637,7 @@ func convertProof(p string) ([24][32]byte, error) {
 
 // GetSendSequenceFee get super/trusted sequencer fee
 func (etherMan *Client) GetSendSequenceFee(numBatches uint64) (*big.Int, error) {
-	f, err := etherMan.ZkEVM.BatchFee(&bind.CallOpts{Pending: false})
+	f, err := etherMan.Supernets2.BatchFee(&bind.CallOpts{Pending: false})
 	if err != nil {
 		return nil, err
 	}
@@ -621,12 +647,12 @@ func (etherMan *Client) GetSendSequenceFee(numBatches uint64) (*big.Int, error) 
 
 // TrustedSequencer gets trusted sequencer address
 func (etherMan *Client) TrustedSequencer() (common.Address, error) {
-	return etherMan.ZkEVM.TrustedSequencer(&bind.CallOpts{Pending: false})
+	return etherMan.Supernets2.TrustedSequencer(&bind.CallOpts{Pending: false})
 }
 
 func (etherMan *Client) forcedBatchEvent(ctx context.Context, vLog types.Log, blocks *[]Block, blocksOrder *map[common.Hash][]Order) error {
 	log.Debug("ForceBatch event detected")
-	fb, err := etherMan.ZkEVM.ParseForceBatch(vLog)
+	fb, err := etherMan.Supernets2.ParseForceBatch(vLog)
 	if err != nil {
 		return err
 	}
@@ -649,7 +675,7 @@ func (etherMan *Client) forcedBatchEvent(ctx context.Context, vLog types.Log, bl
 		txData := tx.Data()
 		// Extract coded txs.
 		// Load contract ABI
-		abi, err := abi.JSON(strings.NewReader(polygonzkevm.PolygonzkevmABI))
+		abi, err := abi.JSON(strings.NewReader(supernets2.Supernets2ABI))
 		if err != nil {
 			return err
 		}
@@ -697,7 +723,7 @@ func (etherMan *Client) forcedBatchEvent(ctx context.Context, vLog types.Log, bl
 
 func (etherMan *Client) sequencedBatchesEvent(ctx context.Context, vLog types.Log, blocks *[]Block, blocksOrder *map[common.Hash][]Order) error {
 	log.Debug("SequenceBatches event detected")
-	sb, err := etherMan.ZkEVM.ParseSequenceBatches(vLog)
+	sb, err := etherMan.Supernets2.ParseSequenceBatches(vLog)
 	if err != nil {
 		return err
 	}
@@ -742,7 +768,7 @@ func (etherMan *Client) sequencedBatchesEvent(ctx context.Context, vLog types.Lo
 func decodeSequences(txData []byte, lastBatchNumber uint64, sequencer common.Address, txHash common.Hash, nonce uint64) ([]SequencedBatch, error) {
 	// Extract coded txs.
 	// Load contract ABI
-	abi, err := abi.JSON(strings.NewReader(polygonzkevm.PolygonzkevmABI))
+	abi, err := abi.JSON(strings.NewReader(supernets2.Supernets2ABI))
 	if err != nil {
 		return nil, err
 	}
@@ -758,7 +784,7 @@ func decodeSequences(txData []byte, lastBatchNumber uint64, sequencer common.Add
 	if err != nil {
 		return nil, err
 	}
-	var sequences []polygonzkevm.PolygonZkEVMBatchData
+	var sequences []supernets2.Supernets2BatchData
 	bytedata, err := json.Marshal(data[0])
 	if err != nil {
 		return nil, err
@@ -772,12 +798,12 @@ func decodeSequences(txData []byte, lastBatchNumber uint64, sequencer common.Add
 	for i, seq := range sequences {
 		bn := lastBatchNumber - uint64(len(sequences)-(i+1))
 		sequencedBatches[i] = SequencedBatch{
-			BatchNumber:           bn,
-			SequencerAddr:         sequencer,
-			TxHash:                txHash,
-			Nonce:                 nonce,
-			Coinbase:              coinbase,
-			PolygonZkEVMBatchData: seq,
+			BatchNumber:         bn,
+			SequencerAddr:       sequencer,
+			TxHash:              txHash,
+			Nonce:               nonce,
+			Coinbase:            coinbase,
+			Supernets2BatchData: seq,
 		}
 	}
 
@@ -786,7 +812,7 @@ func decodeSequences(txData []byte, lastBatchNumber uint64, sequencer common.Add
 
 func (etherMan *Client) verifyBatchesTrustedAggregatorEvent(ctx context.Context, vLog types.Log, blocks *[]Block, blocksOrder *map[common.Hash][]Order) error {
 	log.Debug("TrustedVerifyBatches event detected")
-	vb, err := etherMan.ZkEVM.ParseVerifyBatchesTrustedAggregator(vLog)
+	vb, err := etherMan.Supernets2.ParseVerifyBatchesTrustedAggregator(vLog)
 	if err != nil {
 		return err
 	}
@@ -821,7 +847,7 @@ func (etherMan *Client) verifyBatchesTrustedAggregatorEvent(ctx context.Context,
 
 func (etherMan *Client) forceSequencedBatchesEvent(ctx context.Context, vLog types.Log, blocks *[]Block, blocksOrder *map[common.Hash][]Order) error {
 	log.Debug("SequenceForceBatches event detect")
-	fsb, err := etherMan.ZkEVM.ParseSequenceForceBatches(vLog)
+	fsb, err := etherMan.Supernets2.ParseSequenceForceBatches(vLog)
 	if err != nil {
 		return err
 	}
@@ -868,7 +894,7 @@ func (etherMan *Client) forceSequencedBatchesEvent(ctx context.Context, vLog typ
 func decodeSequencedForceBatches(txData []byte, lastBatchNumber uint64, sequencer common.Address, txHash common.Hash, block *types.Block, nonce uint64) ([]SequencedForceBatch, error) {
 	// Extract coded txs.
 	// Load contract ABI
-	abi, err := abi.JSON(strings.NewReader(polygonzkevm.PolygonzkevmABI))
+	abi, err := abi.JSON(strings.NewReader(supernets2.Supernets2ABI))
 	if err != nil {
 		return nil, err
 	}
@@ -885,7 +911,7 @@ func decodeSequencedForceBatches(txData []byte, lastBatchNumber uint64, sequence
 		return nil, err
 	}
 
-	var forceBatches []polygonzkevm.PolygonZkEVMForcedBatchData
+	var forceBatches []supernets2.Supernets2ForcedBatchData
 	bytedata, err := json.Marshal(data[0])
 	if err != nil {
 		return nil, err
@@ -899,12 +925,12 @@ func decodeSequencedForceBatches(txData []byte, lastBatchNumber uint64, sequence
 	for i, force := range forceBatches {
 		bn := lastBatchNumber - uint64(len(forceBatches)-(i+1))
 		sequencedForcedBatches[i] = SequencedForceBatch{
-			BatchNumber:                 bn,
-			Coinbase:                    sequencer,
-			TxHash:                      txHash,
-			Timestamp:                   time.Unix(int64(block.Time()), 0),
-			Nonce:                       nonce,
-			PolygonZkEVMForcedBatchData: force,
+			BatchNumber:               bn,
+			Coinbase:                  sequencer,
+			TxHash:                    txHash,
+			Timestamp:                 time.Unix(int64(block.Time()), 0),
+			Nonce:                     nonce,
+			Supernets2ForcedBatchData: force,
 		}
 	}
 	return sequencedForcedBatches, nil
@@ -949,12 +975,12 @@ func (etherMan *Client) EthBlockByNumber(ctx context.Context, blockNumber uint64
 
 // GetLastBatchTimestamp function allows to retrieve the lastTimestamp value in the smc
 func (etherMan *Client) GetLastBatchTimestamp() (uint64, error) {
-	return etherMan.ZkEVM.LastTimestamp(&bind.CallOpts{Pending: false})
+	return etherMan.Supernets2.LastTimestamp(&bind.CallOpts{Pending: false})
 }
 
 // GetLatestBatchNumber function allows to retrieve the latest proposed batch in the smc
 func (etherMan *Client) GetLatestBatchNumber() (uint64, error) {
-	return etherMan.ZkEVM.LastBatchSequenced(&bind.CallOpts{Pending: false})
+	return etherMan.Supernets2.LastBatchSequenced(&bind.CallOpts{Pending: false})
 }
 
 // GetLatestBlockNumber gets the latest block number from the ethereum
@@ -977,7 +1003,7 @@ func (etherMan *Client) GetLatestBlockTimestamp(ctx context.Context) (uint64, er
 
 // GetLatestVerifiedBatchNum gets latest verified batch from ethereum
 func (etherMan *Client) GetLatestVerifiedBatchNum() (uint64, error) {
-	return etherMan.ZkEVM.LastVerifiedBatch(&bind.CallOpts{Pending: false})
+	return etherMan.Supernets2.LastVerifiedBatch(&bind.CallOpts{Pending: false})
 }
 
 // GetTx function get ethereum tx
@@ -999,7 +1025,7 @@ func (etherMan *Client) ApproveMatic(ctx context.Context, account common.Address
 	if etherMan.GasProviders.MultiGasProvider {
 		opts.GasPrice = etherMan.GetL1GasPrice(ctx)
 	}
-	tx, err := etherMan.Matic.Approve(&opts, etherMan.l1Cfg.ZkEVMAddr, maticAmount)
+	tx, err := etherMan.Matic.Approve(&opts, etherMan.l1Cfg.Supernets2Addr, maticAmount)
 	if err != nil {
 		if parsedErr, ok := tryParseError(err); ok {
 			err = parsedErr
@@ -1012,12 +1038,12 @@ func (etherMan *Client) ApproveMatic(ctx context.Context, account common.Address
 
 // GetTrustedSequencerURL Gets the trusted sequencer url from rollup smc
 func (etherMan *Client) GetTrustedSequencerURL() (string, error) {
-	return etherMan.ZkEVM.TrustedSequencerURL(&bind.CallOpts{Pending: false})
+	return etherMan.Supernets2.TrustedSequencerURL(&bind.CallOpts{Pending: false})
 }
 
 // GetL2ChainID returns L2 Chain ID
 func (etherMan *Client) GetL2ChainID() (uint64, error) {
-	return etherMan.ZkEVM.ChainID(&bind.CallOpts{Pending: false})
+	return etherMan.Supernets2.ChainID(&bind.CallOpts{Pending: false})
 }
 
 // GetL1GasPrice gets the l1 gas price
@@ -1119,15 +1145,15 @@ func (etherMan *Client) AddOrReplaceAuth(auth bind.TransactOpts) error {
 }
 
 // LoadAuthFromKeyStore loads an authorization from a key store file
-func (etherMan *Client) LoadAuthFromKeyStore(path, password string) (*bind.TransactOpts, error) {
-	auth, err := newAuthFromKeystore(path, password, etherMan.l1Cfg.L1ChainID)
+func (etherMan *Client) LoadAuthFromKeyStore(path, password string) (*bind.TransactOpts, *ecdsa.PrivateKey, error) {
+	auth, pk, err := newAuthFromKeystore(path, password, etherMan.l1Cfg.L1ChainID)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	log.Infof("loaded authorization for address: %v", auth.From.String())
 	etherMan.auth[auth.From] = auth
-	return &auth, nil
+	return &auth, pk, nil
 }
 
 // newKeyFromKeystore creates an instance of a keystore key from a keystore file
@@ -1148,20 +1174,20 @@ func newKeyFromKeystore(path, password string) (*keystore.Key, error) {
 }
 
 // newAuthFromKeystore an authorization instance from a keystore file
-func newAuthFromKeystore(path, password string, chainID uint64) (bind.TransactOpts, error) {
+func newAuthFromKeystore(path, password string, chainID uint64) (bind.TransactOpts, *ecdsa.PrivateKey, error) {
 	log.Infof("reading key from: %v", path)
 	key, err := newKeyFromKeystore(path, password)
 	if err != nil {
-		return bind.TransactOpts{}, err
+		return bind.TransactOpts{}, nil, err
 	}
 	if key == nil {
-		return bind.TransactOpts{}, nil
+		return bind.TransactOpts{}, nil, nil
 	}
 	auth, err := bind.NewKeyedTransactorWithChainID(key.PrivateKey, new(big.Int).SetUint64(chainID))
 	if err != nil {
-		return bind.TransactOpts{}, err
+		return bind.TransactOpts{}, nil, err
 	}
-	return *auth, nil
+	return *auth, key.PrivateKey, nil
 }
 
 // getAuthByAddress tries to get an authorization from the authorizations map

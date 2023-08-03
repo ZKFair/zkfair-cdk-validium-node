@@ -49,7 +49,7 @@
 					"type": "integer",
 					"description": "Chain ID of the L1 network"
 				},
-				"polygonZkEVMAddress": {
+				"supernets2Address": {
 					"items": {
 						"type": "integer"
 					},
@@ -75,6 +75,15 @@
 					"maxItems": 20,
 					"minItems": 20,
 					"description": "Address of the L1 GlobalExitRootManager contract"
+				},
+				"supernets2DataCommitteeContract": {
+					"items": {
+						"type": "integer"
+					},
+					"type": "array",
+					"maxItems": 20,
+					"minItems": 20,
+					"description": "Address of the data availability committee contract"
 				}
 			},
 			"additionalProperties": false,
