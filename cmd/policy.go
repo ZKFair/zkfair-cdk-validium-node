@@ -102,11 +102,10 @@ func updatePolicy(cli *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	var allow = true
 	if !cli.IsSet("allow") {
 		return errors.New("supply one policy action [--allow=true or --allow=false]")
 	}
-	allow = cli.Bool("allow")
+	allow := cli.Bool("allow")
 	err = db.UpdatePolicy(context.Background(), policy, allow)
 	if err != nil {
 		return err

@@ -45,6 +45,7 @@ func (p *PostgresPoolStorage) CheckPolicy(ctx context.Context, policy pool.Polic
 	return allow, nil
 }
 
+// UpdatePolicy sets the default action for the named policy
 func (p *PostgresPoolStorage) UpdatePolicy(ctx context.Context, policy pool.PolicyName, allow bool) error {
 	sql := "UPDATE pool.policy SET allow = $1 WHERE name = $2"
 	_, err := p.db.Exec(ctx, sql, allow, string(policy))
@@ -54,6 +55,7 @@ func (p *PostgresPoolStorage) UpdatePolicy(ctx context.Context, policy pool.Poli
 	return nil
 }
 
+// AddAddressesToPolicy adds address ACLs to the named policy. Their policies will be the opposite of the default action.
 func (p *PostgresPoolStorage) AddAddressesToPolicy(ctx context.Context, policy pool.PolicyName, addresses []common.Address) error {
 	sql := "INSERT INTO pool.acl (policy, address) VALUES ($1, $2) ON CONFLICT DO NOTHING"
 	tx, err := p.db.Begin(ctx)
@@ -77,6 +79,7 @@ func (p *PostgresPoolStorage) AddAddressesToPolicy(ctx context.Context, policy p
 	return nil
 }
 
+// RemoveAddressesFromPolicy removes addresses from the named policy ACL
 func (p *PostgresPoolStorage) RemoveAddressesFromPolicy(ctx context.Context, policy pool.PolicyName, addresses []common.Address) error {
 	sql := "DELETE FROM pool.acl WHERE policy = $1 AND address = $2"
 	tx, err := p.db.Begin(ctx)
@@ -100,6 +103,7 @@ func (p *PostgresPoolStorage) RemoveAddressesFromPolicy(ctx context.Context, pol
 	return nil
 }
 
+// ClearPolicy removes _all_ addresses from the policy ACL
 func (p *PostgresPoolStorage) ClearPolicy(ctx context.Context, policy pool.PolicyName) error {
 	sql := "DELETE FROM pool.acl WHERE policy = $1"
 	_, err := p.db.Exec(ctx, sql, policy)
@@ -109,6 +113,7 @@ func (p *PostgresPoolStorage) ClearPolicy(ctx context.Context, policy pool.Polic
 	return nil
 }
 
+// DescribePolicies displays the current state of the named policies
 func (p *PostgresPoolStorage) DescribePolicies(ctx context.Context) ([]pool.Policy, error) {
 	sql := "SELECT name, allow FROM pool.policy"
 	rows, err := p.db.Query(ctx, sql)
@@ -140,6 +145,7 @@ func (p *PostgresPoolStorage) DescribePolicies(ctx context.Context) ([]pool.Poli
 	return list, nil
 }
 
+// DescribePolicy displays the current state of the named policy and addresses associated
 func (p *PostgresPoolStorage) DescribePolicy(ctx context.Context, name pool.PolicyName) (pool.Policy, error) {
 	sql := "SELECT name, allow FROM pool.policy WHERE name = $1 LIMIT 1"
 	row := p.db.QueryRow(ctx, sql, name)
@@ -157,6 +163,7 @@ func (p *PostgresPoolStorage) DescribePolicy(ctx context.Context, name pool.Poli
 	}, nil
 }
 
+// ListAcl lists the addresses associated with the policy's exclusion list
 func (p *PostgresPoolStorage) ListAcl(
 	ctx context.Context, policy pool.PolicyName, query []common.Address) ([]common.Address, error) {
 	sql := "SELECT address FROM pool.acl WHERE policy = $1"
