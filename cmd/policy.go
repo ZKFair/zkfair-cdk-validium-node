@@ -20,7 +20,7 @@ var (
 		Name:     "policy",
 		Aliases:  []string{"p"},
 		Usage:    "Name of policy to operate on",
-		Required: true,
+		Required: false,
 	}
 	csvFlag = cli.StringFlag{
 		Name:     "csv",
@@ -29,7 +29,17 @@ var (
 	}
 	allowFlag = cli.BoolFlag{
 		Name:     "allow",
-		Usage:    "Update policy action to allow/deny by default",
+		Usage:    "Update policy to 'allow' addresses on list",
+		Required: false,
+	}
+	denyFlag = cli.BoolFlag{
+		Name:     "deny",
+		Usage:    "Update policy to 'deny' addresses on list",
+		Required: false,
+	}
+	noHeaderFlag = cli.BoolFlag{
+		Name:     "no-header",
+		Value:    false,
 		Required: false,
 	}
 
@@ -39,18 +49,19 @@ var (
 var policyCommands = cli.Command{
 	Name:   "policy",
 	Usage:  "View, update, and apply policies",
-	Action: describePolicies,
+	Action: describe,
 	Flags:  []cli.Flag{&configFileFlag},
 	Subcommands: []*cli.Command{
 		{
 			Name:   "update",
 			Usage:  "Update the default action for a policy",
 			Action: updatePolicy,
-			Flags:  append(policyActionFlags, &allowFlag),
+			Flags:  append(policyActionFlags, &allowFlag, &denyFlag),
 		}, {
 			Name:   "describe",
 			Usage:  "Describe the default actions for the policies",
-			Action: describePolicies,
+			Action: describe,
+			Flags:  append(policyActionFlags, &noHeaderFlag),
 		}, {
 			Name:   "add",
 			Usage:  "Add address(es) to a policy exclusion list",
@@ -66,31 +77,8 @@ var policyCommands = cli.Command{
 			Usage:  "Clear the addresses listed as exceptions to a policy",
 			Action: clearAcl,
 			Flags:  policyActionFlags,
-		}, {
-			Name:   "list",
-			Usage:  "List the state and address exclusion list for a policy",
-			Action: listAcl,
-			Flags:  policyActionFlags,
 		},
 	},
-}
-
-func describePolicies(cli *cli.Context) error {
-	_, db, err := configAndStorage(cli)
-	if err != nil {
-		return err
-	}
-	list, err := db.DescribePolicies(context.Background())
-	if err != nil {
-		return err
-	}
-
-	fmt.Printf("%7s: %s\n", "Policy", "Default")
-	for _, p := range list {
-		fmt.Printf("%7s: %s\n", p.Name, p.Desc())
-	}
-
-	return nil
 }
 
 func updatePolicy(cli *cli.Context) error {
@@ -102,11 +90,23 @@ func updatePolicy(cli *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	if !cli.IsSet("allow") {
-		return errors.New("supply one policy action [--allow=true or --allow=false]")
+
+	allow := cli.Bool(allowFlag.Name)
+	deny := cli.Bool(denyFlag.Name)
+
+	// exactly one must be set
+	if (allow && deny) || (!allow && !deny) {
+		return errors.New("supply one policy action [--allow or --deny]")
 	}
-	allow := cli.Bool("allow")
-	err = db.UpdatePolicy(context.Background(), policy, allow)
+
+	var setting bool
+	if allow {
+		setting = true
+	} else if deny {
+		setting = false
+	}
+
+	err = db.UpdatePolicy(context.Background(), policy, setting)
 	if err != nil {
 		return err
 	}
@@ -161,23 +161,33 @@ func clearAcl(cli *cli.Context) error {
 	return nil
 }
 
-func listAcl(cli *cli.Context) error {
+func describe(cli *cli.Context) error {
+	showHeader := !cli.Bool(noHeaderFlag.Name)
+	if cli.IsSet(policyFlag.Name) {
+		return describePolicy(cli, showHeader)
+	}
+	return describePolicies(cli, showHeader)
+}
+
+func describePolicy(cli *cli.Context, showHeader bool) error {
 	_, db, err := configAndStorage(cli)
 	if err != nil {
 		return err
 	}
+
 	policyName, err := resolvePolicy(cli)
 	if err != nil {
 		return err
 	}
 
-	policy, err := db.DescribePolicy(context.Background(), policyName)
-	if err != nil {
-		return err
+	if showHeader {
+		policy, err := db.DescribePolicy(context.Background(), policyName)
+		if err != nil {
+			return err
+		}
+		fmt.Printf("%s: %s\n", "Policy", policy.Name)
+		fmt.Printf("%s: %s\n", "Action", policy.Desc())
 	}
-	fmt.Printf("%s: %s\n", "Policy", policy.Name)
-	fmt.Printf("%s: %s\n", "Default", policy.Desc())
-
 	query, err := resolveAddresses(cli, false)
 	if err != nil {
 		return nil
@@ -186,14 +196,33 @@ func listAcl(cli *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	listAction := "Denied"
-	if !policy.Allow {
-		listAction = "Allowed"
+
+	if showHeader {
+		fmt.Println("Addresses:")
 	}
-	fmt.Printf("%s addrs:\n", listAction)
 	for _, address := range list {
 		fmt.Println(address.Hex())
 	}
+	return nil
+}
+
+func describePolicies(cli *cli.Context, showHeader bool) error {
+	_, db, err := configAndStorage(cli)
+	if err != nil {
+		return err
+	}
+	list, err := db.DescribePolicies(context.Background())
+	if err != nil {
+		return err
+	}
+
+	if showHeader {
+		fmt.Printf("%7s: %s\n", "Policy", "Action")
+	}
+	for _, p := range list {
+		fmt.Printf("%7s: %s\n", p.Name, p.Desc())
+	}
+
 	return nil
 }
 
@@ -224,7 +253,7 @@ func requirePolicyAndAddresses(cli *cli.Context) (pool.PolicyName, []common.Addr
 }
 
 func resolvePolicy(cli *cli.Context) (pool.PolicyName, error) {
-	policy := cli.String("policy")
+	policy := cli.String(policyFlag.Name)
 	if policy == "" {
 		return "", nil
 	}
@@ -237,7 +266,7 @@ func resolvePolicy(cli *cli.Context) (pool.PolicyName, error) {
 func resolveAddresses(cli *cli.Context, failIfEmpty bool) ([]common.Address, error) {
 	var set = make(map[common.Address]struct{})
 	if cli.IsSet("csv") {
-		file := cli.String("csv")
+		file := cli.String(csvFlag.Name)
 		fd, err := os.Open(file)
 		if err != nil {
 			return nil, err

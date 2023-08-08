@@ -1803,45 +1803,52 @@ func Test_PolicyAcl(t *testing.T) {
 
 	p := pool.NewPool(cfg, s, nil, uint64(1), nil)
 
-	addr1 := common.HexToAddress("0x1")
-	addr2 := common.HexToAddress("0x2")
-	addr3 := common.HexToAddress("0x3")
-
-	for _, policy := range []pool.PolicyName{pool.SendTx, pool.Deploy} {
-		allow, err := p.CheckPolicy(ctx, policy, addr1)
+	randAddr := func() common.Address {
+		buf := make([]byte, 20)
+		_, err = rand.Read(buf)
 		require.NoError(t, err)
-		require.True(t, allow) // default is to allow
+		return common.BytesToAddress(buf)
 	}
 
-	// put addr on lists
+	// Policies start out as deny lists, since there are no addresses on the
+	// lists, random addresses will always be allowed
 	for _, policy := range []pool.PolicyName{pool.SendTx, pool.Deploy} {
-		ctag, err := poolSqlDB.Exec(ctx, "INSERT INTO pool.acl (policy, address) VALUES ($1,$2)", policy, addr1.Hex())
-		require.NoError(t, err)
-		require.Equal(t, int64(1), ctag.RowsAffected())
-	}
-
-	// list members are now denied
-	for _, policy := range []pool.PolicyName{pool.SendTx, pool.Deploy} {
-		allow, err := p.CheckPolicy(ctx, policy, addr1)
-		require.NoError(t, err)
-		require.False(t, allow) // default is to allow
-	}
-
-	// change policies to deny by default
-	ctag, err := poolSqlDB.Exec(ctx, "UPDATE pool.policy SET allow = false")
-	require.NoError(t, err)
-	require.Equal(t, int64(2), ctag.RowsAffected())
-
-	// list members are now allowed
-	for _, policy := range []pool.PolicyName{pool.SendTx, pool.Deploy} {
-		allow, err := p.CheckPolicy(ctx, policy, addr1)
+		allow, err := p.CheckPolicy(ctx, policy, randAddr())
 		require.NoError(t, err)
 		require.True(t, allow)
 	}
 
-	// randos are now denied
+	addr := randAddr()
+
+	// put addr on lists
 	for _, policy := range []pool.PolicyName{pool.SendTx, pool.Deploy} {
-		for _, a := range []common.Address{addr2, addr3} {
+		ctag, err := poolSqlDB.Exec(ctx, "INSERT INTO pool.acl (policy, address) VALUES ($1,$2)", policy, addr.Hex())
+		require.NoError(t, err)
+		require.Equal(t, int64(1), ctag.RowsAffected())
+	}
+
+	// addr should not be denied by policy
+	for _, policy := range []pool.PolicyName{pool.SendTx, pool.Deploy} {
+		allow, err := p.CheckPolicy(ctx, policy, addr)
+		require.NoError(t, err)
+		require.False(t, allow)
+	}
+
+	// change policies to allow by acl
+	ctag, err := poolSqlDB.Exec(ctx, "UPDATE pool.policy SET allow = true")
+	require.NoError(t, err)
+	require.Equal(t, int64(2), ctag.RowsAffected())
+
+	// addr is now allowed
+	for _, policy := range []pool.PolicyName{pool.SendTx, pool.Deploy} {
+		allow, err := p.CheckPolicy(ctx, policy, addr)
+		require.NoError(t, err)
+		require.True(t, allow)
+	}
+
+	// random addrs are now denied
+	for _, policy := range []pool.PolicyName{pool.SendTx, pool.Deploy} {
+		for _, a := range []common.Address{randAddr(), randAddr()} {
 			allow, err := s.CheckPolicy(ctx, policy, a)
 			require.NoError(t, err)
 			require.False(t, allow)
