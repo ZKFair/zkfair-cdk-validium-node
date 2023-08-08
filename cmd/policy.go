@@ -53,30 +53,30 @@ var policyCommands = cli.Command{
 	Flags:  []cli.Flag{&configFileFlag},
 	Subcommands: []*cli.Command{
 		{
-			Name:   "update",
-			Usage:  "Update the default action for a policy",
-			Action: updatePolicy,
-			Flags:  append(policyActionFlags, &allowFlag, &denyFlag),
-		}, {
-			Name:   "describe",
-			Usage:  "Describe the default actions for the policies",
-			Action: describe,
-			Flags:  append(policyActionFlags, &noHeaderFlag),
-		}, {
 			Name:   "add",
 			Usage:  "Add address(es) to a policy exclusion list",
 			Action: addAcl,
-			Flags:  append(policyActionFlags, &csvFlag),
-		}, {
-			Name:   "remove",
-			Usage:  "Remove address(es) from a policy exclusion list",
-			Action: removeAcl,
 			Flags:  append(policyActionFlags, &csvFlag),
 		}, {
 			Name:   "clear",
 			Usage:  "Clear the addresses listed as exceptions to a policy",
 			Action: clearAcl,
 			Flags:  policyActionFlags,
+		}, {
+			Name:   "describe",
+			Usage:  "Describe the default actions for the policies",
+			Action: describe,
+			Flags:  append(policyActionFlags, &noHeaderFlag),
+		}, {
+			Name:   "remove",
+			Usage:  "Remove address(es) from a policy exclusion list",
+			Action: removeAcl,
+			Flags:  append(policyActionFlags, &csvFlag),
+		}, {
+			Name:   "update",
+			Usage:  "Update the default action for a policy",
+			Action: updatePolicy,
+			Flags:  append(policyActionFlags, &allowFlag, &denyFlag),
 		},
 	},
 }
