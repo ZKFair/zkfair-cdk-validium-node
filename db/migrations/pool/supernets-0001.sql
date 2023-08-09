@@ -9,8 +9,8 @@ CREATE TABLE pool.policy
     allow BOOLEAN NOT NULL DEFAULT false
 );
 
-INSERT INTO pool.policy (name, allow) VALUES ('send_tx', true);
-INSERT INTO pool.policy (name, allow) VALUES ('deploy', true);
+INSERT INTO pool.policy (name, allow) VALUES ('send_tx', false);
+INSERT INTO pool.policy (name, allow) VALUES ('deploy', false);
 
 CREATE TABLE pool.acl
 (
