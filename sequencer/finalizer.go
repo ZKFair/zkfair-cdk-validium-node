@@ -112,8 +112,6 @@ func newFinalizer(
 	closingSignalCh ClosingSignalCh,
 	batchConstraints batchConstraints,
 	eventLog *event.EventLog,
-	pendingTxsToStoreMux *sync.RWMutex,
-	pendingTxsPerAddressTrackers map[common.Address]*pendingTxPerAddressTracker,
 ) *finalizer {
 	return &finalizer{
 		cfg:                  cfg,
@@ -466,7 +464,7 @@ func (f *finalizer) newWIPBatch(ctx context.Context) (*WipBatch, error) {
 
 	// Wait until all processed transactions are saved
 	startWait := time.Now()
-	f.pendingTxsToStoreWG.Wait()
+	f.pendingTransactionsToStoreWG.Wait()
 	endWait := time.Now()
 
 	log.Info("waiting for pending transactions to be stored took: ", endWait.Sub(startWait).String())
@@ -754,15 +752,6 @@ func (f *finalizer) handleForcedTxsProcessResp(ctx context.Context, request stat
 
 // storeProcessedTx stores the processed transaction in the database.
 func (f *finalizer) storeProcessedTx(ctx context.Context, txToStore transactionToStore) {
-	f.pendingTxsToStoreMux.Lock()
-	if _, ok := f.pendingTxsPerAddressTrackers[txToStore.txTracker.From]; !ok {
-		f.pendingTxsPerAddressTrackers[txToStore.txTracker.From] = new(pendingTxPerAddressTracker)
-		f.pendingTxsPerAddressTrackers[txToStore.txTracker.From].wg = &sync.WaitGroup{}
-	}
-	f.pendingTxsPerAddressTrackers[txToStore.txTracker.From].wg.Add(1)
-	f.pendingTxsPerAddressTrackers[txToStore.txTracker.From].count++
-	f.pendingTxsToStoreMux.Unlock()
-
 	if txToStore.response != nil {
 		log.Infof("storeProcessedTx: storing processed txToStore: %s", txToStore.response.TxHash.String())
 	} else {

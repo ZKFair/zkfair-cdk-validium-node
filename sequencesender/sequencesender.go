@@ -13,8 +13,6 @@ import (
 	"github.com/0xPolygonHermez/zkevm-node/log"
 	"github.com/0xPolygonHermez/zkevm-node/sequencer/metrics"
 	"github.com/0xPolygonHermez/zkevm-node/state"
-	"github.com/ethereum/go-ethereum/common"
-	ethTypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/jackc/pgx/v4"
 )
 

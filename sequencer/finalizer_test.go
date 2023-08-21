@@ -118,9 +118,7 @@ func TestNewFinalizer(t *testing.T) {
 	dbManagerMock.On("GetLastSentFlushID", context.Background()).Return(uint64(0), nil)
 
 	// arrange and act
-	pendingTxsToStoreMux := new(sync.RWMutex)
-	pendingTxsPerAddressTrackers := make(map[common.Address]*pendingTxPerAddressTracker)
-	f = newFinalizer(cfg, effectiveGasPriceCfg, workerMock, dbManagerMock, executorMock, seqAddr, isSynced, closingSignalCh, bc, eventLog, pendingTxsToStoreMux, pendingTxsPerAddressTrackers)
+	f = newFinalizer(cfg, effectiveGasPriceCfg, workerMock, dbManagerMock, executorMock, seqAddr, isSynced, closingSignalCh, bc, eventLog)
 
 	// assert
 	assert.NotNil(t, f)
@@ -270,14 +268,14 @@ func TestFinalizer_handleProcessTransactionResponse(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			storedTxs := make([]transactionToStore, 0)
-			f.pendingTxsToStore = make(chan transactionToStore)
+			f.pendingTransactionsToStore = make(chan transactionToStore)
 
 			if tc.expectedStoredTx.batchResponse != nil {
 				done = make(chan bool) // init a new done channel
 				go func() {
-					for tx := range f.pendingTxsToStore {
+					for tx := range f.pendingTransactionsToStore {
 						storedTxs = append(storedTxs, tx)
-						f.pendingTxsToStoreWG.Done()
+						f.pendingTransactionsToStoreWG.Done()
 					}
 					done <- true // signal that the goroutine is done
 				}()
@@ -314,9 +312,9 @@ func TestFinalizer_handleProcessTransactionResponse(t *testing.T) {
 			}
 
 			if tc.expectedStoredTx.batchResponse != nil {
-				close(f.pendingTxsToStore) // close the channel
-				<-done                     // wait for the goroutine to finish
-				f.pendingTxsToStoreWG.Wait()
+				close(f.pendingTransactionsToStore) // close the channel
+				<-done                              // wait for the goroutine to finish
+				f.pendingTransactionsToStoreWG.Wait()
 				require.Len(t, storedTxs, 1)
 				actualTx := storedTxs[0]
 				assertEqualTransactionToStore(t, tc.expectedStoredTx, actualTx)
@@ -896,13 +894,13 @@ func TestFinalizer_processForcedBatches(t *testing.T) {
 			var newStateRoot common.Hash
 			stateRoot := oldHash
 			storedTxs := make([]transactionToStore, 0)
-			f.pendingTxsToStore = make(chan transactionToStore)
+			f.pendingTransactionsToStore = make(chan transactionToStore)
 			if tc.expectedStoredTx != nil && len(tc.expectedStoredTx) > 0 {
 				done = make(chan bool) // init a new done channel
 				go func() {
-					for tx := range f.pendingTxsToStore {
+					for tx := range f.pendingTransactionsToStore {
 						storedTxs = append(storedTxs, tx)
-						f.pendingTxsToStoreWG.Done()
+						f.pendingTransactionsToStoreWG.Done()
 					}
 					done <- true // signal that the goroutine is done
 				}()
@@ -960,9 +958,9 @@ func TestFinalizer_processForcedBatches(t *testing.T) {
 				assert.EqualError(t, err, tc.expectedErr.Error())
 			} else {
 				if tc.expectedStoredTx != nil && len(tc.expectedStoredTx) > 0 {
-					close(f.pendingTxsToStore) // ensure the channel is closed
-					<-done                     // wait for the goroutine to finish
-					f.pendingTxsToStoreWG.Wait()
+					close(f.pendingTransactionsToStore) // ensure the channel is closed
+					<-done                              // wait for the goroutine to finish
+					f.pendingTransactionsToStoreWG.Wait()
 					for i := range tc.expectedStoredTx {
 						require.Equal(t, tc.expectedStoredTx[i], storedTxs[i])
 					}
@@ -1497,13 +1495,13 @@ func Test_processTransaction(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			storedTxs := make([]transactionToStore, 0)
-			f.pendingTxsToStore = make(chan transactionToStore, 1)
+			f.pendingTransactionsToStore = make(chan transactionToStore, 1)
 			if tc.expectedStoredTx.batchResponse != nil {
 				done = make(chan bool) // init a new done channel
 				go func() {
-					for tx := range f.pendingTxsToStore {
+					for tx := range f.pendingTransactionsToStore {
 						storedTxs = append(storedTxs, tx)
-						f.pendingTxsToStoreWG.Done()
+						f.pendingTransactionsToStoreWG.Done()
 					}
 					done <- true // signal that the goroutine is done
 				}()
@@ -1527,9 +1525,9 @@ func Test_processTransaction(t *testing.T) {
 			errWg, err := f.processTransaction(tc.ctx, tc.tx)
 
 			if tc.expectedStoredTx.batchResponse != nil {
-				close(f.pendingTxsToStore) // ensure the channel is closed
-				<-done                     // wait for the goroutine to finish
-				f.pendingTxsToStoreWG.Wait()
+				close(f.pendingTransactionsToStore) // ensure the channel is closed
+				<-done                              // wait for the goroutine to finish
+				f.pendingTransactionsToStoreWG.Wait()
 				require.Equal(t, tc.expectedStoredTx, storedTxs[0])
 			}
 			if tc.expectedErr != nil {
@@ -1683,19 +1681,19 @@ func Test_handleForcedTxsProcessResp(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			storedTxs := make([]transactionToStore, 0)
-			f.pendingTxsToStore = make(chan transactionToStore)
+			f.pendingTransactionsToStore = make(chan transactionToStore)
 
 			// Mock storeProcessedTx to store txs into the storedTxs slice
 			go func() {
-				for tx := range f.pendingTxsToStore {
+				for tx := range f.pendingTransactionsToStore {
 					storedTxs = append(storedTxs, tx)
-					f.pendingTxsToStoreWG.Done()
+					f.pendingTransactionsToStoreWG.Done()
 				}
 			}()
 
 			f.handleForcedTxsProcessResp(ctx, tc.request, tc.result, tc.oldStateRoot)
 
-			f.pendingTxsToStoreWG.Wait()
+			f.pendingTransactionsToStoreWG.Wait()
 			require.Nil(t, err)
 			require.Equal(t, len(tc.expectedStoredTxs), len(storedTxs))
 			for i := 0; i < len(tc.expectedStoredTxs); i++ {
@@ -1737,9 +1735,6 @@ func TestFinalizer_storeProcessedTx(t *testing.T) {
 				response: &state.ProcessTransactionResponse{
 					TxHash: txHash,
 				},
-				txTracker: &TxTracker{
-					From: senderAddr,
-				},
 				isForcedBatch: false,
 			},
 		},
@@ -1762,9 +1757,6 @@ func TestFinalizer_storeProcessedTx(t *testing.T) {
 					TxHash: txHash2,
 				},
 				isForcedBatch: true,
-				txTracker: &TxTracker{
-					From: senderAddr,
-				},
 			},
 		},
 	}

@@ -3,7 +3,6 @@ package sequencer
 import (
 	"context"
 	"math/big"
-	"sync"
 	"testing"
 
 	"github.com/0xPolygonHermez/zkevm-node/state"
