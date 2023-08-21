@@ -336,7 +336,7 @@ services:
 
   supernets2-prover:
     container_name: supernets2-prover
-    image: hermeznetwork/zkevm-prover:v2.0.1
+    image: hermeznetwork/zkevm-prover:v2.1.0
     ports:
       # - 50051:50051 # Prover
       - 50052:50052 # Mock prover
@@ -471,7 +471,7 @@ services:
 
   supernets2-permissionless-prover:
     container_name: supernets2-permissionless-prover
-    image: hermeznetwork/zkevm-prover:v2.0.1
+    image: hermeznetwork/zkevm-prover:v2.1.0
     ports:
       # - 50058:50058 # Prover
       - 50059:50052 # Mock prover

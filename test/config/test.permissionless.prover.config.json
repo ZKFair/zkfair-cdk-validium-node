@@ -27,7 +27,7 @@
     "runBlakeTest": false,
 
     "executeInParallel": true,
-    "useMainExecGenerated": false,
+    "useMainExecGenerated": true,
     "saveRequestToFile": false,
     "saveInputToFile": false,
     "saveDbReadsToFile": false,
@@ -81,8 +81,7 @@
     "maxExecutorThreads": 20,
     "maxProverThreads": 8,
     "maxHashDBThreads": 8,
-
     "ECRecoverPrecalc": true,
     "ECRecoverPrecalcNThreads": 16,
-    "dbMultiWriteSinglePosition": false
+    "stateManager": true
 }

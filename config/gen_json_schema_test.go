@@ -9,12 +9,17 @@ import (
 	"time"
 
 	"github.com/0xPolygonHermez/zkevm-node/config/types"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/invopop/jsonschema"
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/require"
 	"github.com/urfave/cli/v2"
 )
+
+type TestConfigWithAddress struct {
+	L2Coinbase common.Address `mapstructure:"L2Coinbase"`
+}
 
 type MySectionConfig struct {
 }
@@ -84,6 +89,39 @@ const MyTestConfigTomlFile = `
 f1_another_name="value_f1"
 f2_another_name=5678
 `
+
+func TestGenerateJsonSchemaWithAEthAddressEmpty(t *testing.T) {
+	cli := cli.NewContext(nil, nil, nil)
+	generator := ConfigJsonSchemaGenerater[TestConfigWithAddress]{
+		repoName:                "github.com/0xPolygonHermez/zkevm-node/config/",
+		cleanRequiredField:      true,
+		addCodeCommentsToSchema: true,
+		pathSourceCode:          "./",
+		repoNameSuffix:          "config/",
+		defaultValues:           &TestConfigWithAddress{},
+	}
+	schema, err := generator.GenerateJsonSchema(cli)
+	require.NoError(t, err)
+	require.NotNil(t, schema)
+}
+
+func TestGenerateJsonSchemaWithAEthAddress(t *testing.T) {
+	cli := cli.NewContext(nil, nil, nil)
+	adr := common.HexToAddress("0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266")
+	generator := ConfigJsonSchemaGenerater[TestConfigWithAddress]{
+		repoName:                "github.com/0xPolygonHermez/zkevm-node/config/",
+		cleanRequiredField:      true,
+		addCodeCommentsToSchema: true,
+		pathSourceCode:          "./",
+		repoNameSuffix:          "config/",
+		defaultValues: &TestConfigWithAddress{
+			L2Coinbase: adr,
+		},
+	}
+	schema, err := generator.GenerateJsonSchema(cli)
+	require.NoError(t, err)
+	require.NotNil(t, schema)
+}
 
 func TestGenerateJsonSchemaCommentsWithDurationItem(t *testing.T) {
 	cli := cli.NewContext(nil, nil, nil)
@@ -313,23 +351,23 @@ func TestGenerateJsonSchemaInjectDefaultValue1stLevel(t *testing.T) {
 	require.EqualValues(t, false, v.Default)
 }
 
-// func TestGenerateJsonSchemaInjectDefaultValue2stLevel(t *testing.T) {
-// 	cli := cli.NewContext(nil, nil, nil)
-// 	generator := NewNodeConfigJsonSchemaGenerater()
-// 	generator.pathSourceCode = "../"
-// 	// This is a hack, we are not at root folder, then to store the comment is joining .. with reponame
-// 	// and doesn't find out the comment
-// 	generator.repoName = "github.com/0xPolygon/supernets2-node/config/"
-// 	generator.repoNameSuffix = "/config"
-// 	generator.defaultValues.Log.Level = "mylevel"
-// 	schema, err := generator.GenerateJsonSchema(cli)
-// 	require.NoError(t, err)
-// 	require.NotNil(t, schema)
-// 	v, err := getValueFromSchema(schema, []string{"Log", "Level"})
-// 	require.NoError(t, err)
-// 	require.EqualValues(t, "mylevel", v.Default)
-// 	require.NotEmpty(t, v.Description)
-// }
+func TestGenerateJsonSchemaInjectDefaultValue2stLevel(t *testing.T) {
+	cli := cli.NewContext(nil, nil, nil)
+	generator := NewNodeConfigJsonSchemaGenerater()
+	generator.pathSourceCode = "../"
+	// This is a hack, we are not at root folder, then to store the comment is joining .. with reponame
+	// and doesn't find out the comment
+	generator.repoName = "github.com/0xPolygonHermez/zkevm-node/config/"
+	generator.repoNameSuffix = "/config"
+	generator.defaultValues.Log.Level = "mylevel"
+	schema, err := generator.GenerateJsonSchema(cli)
+	require.NoError(t, err)
+	require.NotNil(t, schema)
+	v, err := getValueFromSchema(schema, []string{"Log", "Level"})
+	require.NoError(t, err)
+	require.EqualValues(t, "mylevel", v.Default)
+	require.NotEmpty(t, v.Description)
+}
 
 func getValueFromSchema(schema *jsonschema.Schema, keys []string) (*jsonschema.Schema, error) {
 	if schema == nil {

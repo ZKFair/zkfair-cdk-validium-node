@@ -290,12 +290,13 @@ func TestFinalizer_handleProcessTransactionResponse(t *testing.T) {
 				workerMock.On("MoveTxToNotReady", txHash, senderAddr, addressInfo.Nonce, addressInfo.Balance).Return([]*TxTracker{}).Once()
 			}
 			if tc.expectedUpdateTxCall {
-				workerMock.On("UpdateTx", txTracker.Hash, txTracker.From, tc.executorResponse.UsedZkCounters).Return().Once()
+				workerMock.On("UpdateTxZKCounters", txTracker.Hash, txTracker.From, tc.executorResponse.UsedZkCounters).Return().Once()
 			}
 			if tc.expectedError == nil {
 				//dbManagerMock.On("GetGasPrices", ctx).Return(pool.GasPrices{L1GasPrice: 0, L2GasPrice: 0}, nilErr).Once()
 				workerMock.On("DeleteTx", txTracker.Hash, txTracker.From).Return().Once()
 				workerMock.On("UpdateAfterSingleSuccessfulTxExecution", txTracker.From, tc.executorResponse.ReadWriteAddresses).Return([]*TxTracker{}).Once()
+				workerMock.On("AddPendingTxToStore", txTracker.Hash, txTracker.From).Return().Once()
 			}
 			if tc.expectedUpdateTxStatus != "" {
 				dbManagerMock.On("UpdateTxStatus", ctx, txHash, tc.expectedUpdateTxStatus, false, mock.Anything).Return(nil).Once()
@@ -1302,7 +1303,7 @@ func TestFinalizer_checkRemainingResources(t *testing.T) {
 			f.batch.remainingResources = tc.remaining
 			dbManagerMock.On("AddEvent", ctx, mock.Anything, nil).Return(nil)
 			if tc.expectedWorkerUpdate {
-				workerMock.On("UpdateTx", txResponse.TxHash, tc.expectedTxTracker.From, result.UsedZkCounters).Return().Once()
+				workerMock.On("UpdateTxZKCounters", txResponse.TxHash, tc.expectedTxTracker.From, result.UsedZkCounters).Return().Once()
 			}
 
 			// act
@@ -1316,9 +1317,9 @@ func TestFinalizer_checkRemainingResources(t *testing.T) {
 				assert.NoError(t, err)
 			}
 			if tc.expectedWorkerUpdate {
-				workerMock.AssertCalled(t, "UpdateTx", txResponse.TxHash, tc.expectedTxTracker.From, result.UsedZkCounters)
+				workerMock.AssertCalled(t, "UpdateTxZKCounters", txResponse.TxHash, tc.expectedTxTracker.From, result.UsedZkCounters)
 			} else {
-				workerMock.AssertNotCalled(t, "UpdateTx", mock.Anything, mock.Anything, mock.Anything)
+				workerMock.AssertNotCalled(t, "UpdateTxZKCounters", mock.Anything, mock.Anything, mock.Anything)
 			}
 		})
 	}
@@ -1516,6 +1517,7 @@ func Test_processTransaction(t *testing.T) {
 			}
 			if tc.expectedErr == nil {
 				workerMock.On("UpdateAfterSingleSuccessfulTxExecution", tc.tx.From, tc.expectedResponse.ReadWriteAddresses).Return([]*TxTracker{}).Once()
+				workerMock.On("AddPendingTxToStore", tc.tx.Hash, tc.tx.From).Return().Once()
 			}
 
 			if tc.expectedUpdateTxStatus != "" {
@@ -2453,10 +2455,8 @@ func setupFinalizer(withWipBatch bool) *finalizer {
 		handlingL2Reorg:                         false,
 		eventLog:                                eventLog,
 		maxBreakEvenGasPriceDeviationPercentage: big.NewInt(10),
-		pendingTxsToStore:                       make(chan transactionToStore, bc.MaxTxsPerBatch*pendingTxsBufferSizeMultiplier),
-		pendingTxsToStoreWG:                     new(sync.WaitGroup),
-		pendingTxsToStoreMux:                    new(sync.RWMutex),
-		pendingTxsPerAddressTrackers:            make(map[common.Address]*pendingTxPerAddressTracker),
+		pendingTransactionsToStore:              make(chan transactionToStore, bc.MaxTxsPerBatch*pendingTxsBufferSizeMultiplier),
+		pendingTransactionsToStoreWG:            new(sync.WaitGroup),
 		storedFlushID:                           0,
 		storedFlushIDCond:                       sync.NewCond(new(sync.Mutex)),
 		proverID:                                "",
