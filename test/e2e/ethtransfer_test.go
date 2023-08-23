@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/0xPolygonHermez/zkevm-node/etherman/smartcontracts/supernets2"
 	"github.com/0xPolygonHermez/zkevm-node/log"
 	"github.com/0xPolygonHermez/zkevm-node/test/operations"
 	"github.com/ethereum/go-ethereum"
@@ -38,6 +39,17 @@ func TestEthTransfer(t *testing.T) {
 	// Load eth client
 	client, err := ethclient.Dial(operations.DefaultL2NetworkURL)
 	require.NoError(t, err)
+
+	clientL1, err := ethclient.Dial(operations.DefaultL1NetworkURL)
+	require.NoError(t, err)
+	// Send txs
+	zkEvmAddr := common.HexToAddress(operations.DefaultL1Supernets2SmartContract)
+	zkEvm, err := supernets2.NewSupernets2(zkEvmAddr, clientL1)
+	require.NoError(t, err)
+	addr, err := zkEvm.TrustedSequencer(nil)
+	require.NoError(t, err)
+	log.Error(addr.Hex())
+
 	// Send txs
 	nTxs := 10
 	amount := big.NewInt(10000)
