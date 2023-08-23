@@ -571,6 +571,7 @@ func (f *finalizer) processTransaction(ctx context.Context, tx *TxTracker) (errW
 					return nil, err
 				} else {
 					log.Warnf("EffectiveGasPrice is disabled, but failed to calculate BreakEvenGasPrice: %s", err)
+					tx.BreakEvenGasPrice = big.NewInt(0)
 				}
 			}
 		}
