@@ -308,7 +308,7 @@ services:
 
   supernets2-mock-l1-network:
     container_name: supernets2-mock-l1-network
-    image: hermeznetwork/geth-supernets2-contracts:v0.0.1
+    image: hermeznetwork/geth-supernets2-contracts:v0.0.2
     ports:
       - 8545:8545
       - 8546:8546
