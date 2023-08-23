@@ -71,7 +71,6 @@ require (
 	github.com/gofrs/flock v0.8.1 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
-	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/golang/snappy v0.0.5-0.20220116011046-fa5810519dcb // indirect
 	github.com/google/gofuzz v1.2.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
@@ -149,6 +148,7 @@ require (
 require (
 	github.com/0xPolygon/supernets2-data-availability v0.0.0-20230707114052-4ace9ee1f2e3
 	github.com/0xPolygonHermez/zkevm-node v0.0.0-00010101000000-000000000000
+	github.com/golang/protobuf v1.5.3
 	github.com/prometheus/client_golang v1.16.0
 )
 

@@ -224,12 +224,14 @@ Url=""
 **Type:** : `object`
 **Description:** Configuration for ethereum transaction manager
 
-| Property                                                        | Pattern | Type            | Deprecated | Definition | Title/Description                                                                                                                  |
-| --------------------------------------------------------------- | ------- | --------------- | ---------- | ---------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| - [FrequencyToMonitorTxs](#EthTxManager_FrequencyToMonitorTxs ) | No      | string          | No         | -          | Duration                                                                                                                           |
-| - [WaitTxToBeMined](#EthTxManager_WaitTxToBeMined )             | No      | string          | No         | -          | Duration                                                                                                                           |
-| - [PrivateKeys](#EthTxManager_PrivateKeys )                     | No      | array of object | No         | -          | PrivateKeys defines all the key store files that are going<br />to be read in order to provide the private keys to sign the L1 txs |
-| - [ForcedGas](#EthTxManager_ForcedGas )                         | No      | integer         | No         | -          | ForcedGas is the amount of gas to be forced in case of gas estimation error                                                        |
+| Property                                                        | Pattern | Type            | Deprecated | Definition | Title/Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| --------------------------------------------------------------- | ------- | --------------- | ---------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| - [FrequencyToMonitorTxs](#EthTxManager_FrequencyToMonitorTxs ) | No      | string          | No         | -          | Duration                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| - [WaitTxToBeMined](#EthTxManager_WaitTxToBeMined )             | No      | string          | No         | -          | Duration                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| - [PrivateKeys](#EthTxManager_PrivateKeys )                     | No      | array of object | No         | -          | PrivateKeys defines all the key store files that are going<br />to be read in order to provide the private keys to sign the L1 txs                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| - [ForcedGas](#EthTxManager_ForcedGas )                         | No      | integer         | No         | -          | ForcedGas is the amount of gas to be forced in case of gas estimation error                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| - [GasPriceMarginFactor](#EthTxManager_GasPriceMarginFactor )   | No      | number          | No         | -          | GasPriceMarginFactor is used to multiply the suggested gas price provided by the network<br />in order to allow a different gas price to be set for all the transactions and making it<br />easier to have the txs prioritized in the pool, default value is 1.<br /><br />ex:<br />suggested gas price: 100<br />GasPriceMarginFactor: 1<br />gas price = 100<br /><br />suggested gas price: 100<br />GasPriceMarginFactor: 1.1<br />gas price = 110                                                                                                                                                                                              |
+| - [MaxGasPriceLimit](#EthTxManager_MaxGasPriceLimit )           | No      | integer         | No         | -          | MaxGasPriceLimit helps avoiding transactions to be sent over an specified<br />gas price amount, default value is 0, which means no limit.<br />If the gas price provided by the network and adjusted by the GasPriceMarginFactor<br />is greater than this configuration, transaction will have its gas price set to<br />the value configured in this config as the limit.<br /><br />ex:<br /><br />suggested gas price: 100<br />gas price margin factor: 20%<br />max gas price limit: 150<br />tx gas price = 120<br /><br />suggested gas price: 100<br />gas price margin factor: 20%<br />max gas price limit: 110<br />tx gas price = 110 |
 
 ### <a name="EthTxManager_FrequencyToMonitorTxs"></a>6.1. `EthTxManager.FrequencyToMonitorTxs`
 
@@ -333,6 +335,61 @@ to be read in order to provide the private keys to sign the L1 txs
 ```
 [EthTxManager]
 ForcedGas=0
+```
+
+### <a name="EthTxManager_GasPriceMarginFactor"></a>6.5. `EthTxManager.GasPriceMarginFactor`
+
+**Type:** : `number`
+
+**Default:** `1`
+
+**Description:** GasPriceMarginFactor is used to multiply the suggested gas price provided by the network
+in order to allow a different gas price to be set for all the transactions and making it
+easier to have the txs prioritized in the pool, default value is 1.
+
+ex:
+suggested gas price: 100
+GasPriceMarginFactor: 1
+gas price = 100
+
+suggested gas price: 100
+GasPriceMarginFactor: 1.1
+gas price = 110
+
+**Example setting the default value** (1):
+```
+[EthTxManager]
+GasPriceMarginFactor=1
+```
+
+### <a name="EthTxManager_MaxGasPriceLimit"></a>6.6. `EthTxManager.MaxGasPriceLimit`
+
+**Type:** : `integer`
+
+**Default:** `0`
+
+**Description:** MaxGasPriceLimit helps avoiding transactions to be sent over an specified
+gas price amount, default value is 0, which means no limit.
+If the gas price provided by the network and adjusted by the GasPriceMarginFactor
+is greater than this configuration, transaction will have its gas price set to
+the value configured in this config as the limit.
+
+ex:
+
+suggested gas price: 100
+gas price margin factor: 20%
+max gas price limit: 150
+tx gas price = 120
+
+suggested gas price: 100
+gas price margin factor: 20%
+max gas price limit: 110
+tx gas price = 110
+
+**Example setting the default value** (0):
+```
+[EthTxManager]
+MaxGasPriceLimit=0
 ```
 
 ## <a name="Pool"></a>7. `[Pool]`
@@ -953,20 +1010,10 @@ TrustedSequencerURL=""
 | - [MaxArithmetics](#Sequencer_MaxArithmetics )                               | No      | integer | No         | -          | MaxArithmetics is max arithmetics batch can handle                                                                                                 |
 | - [MaxBinaries](#Sequencer_MaxBinaries )                                     | No      | integer | No         | -          | MaxBinaries is max binaries batch can handle                                                                                                       |
 | - [MaxSteps](#Sequencer_MaxSteps )                                           | No      | integer | No         | -          | MaxSteps is max steps batch can handle                                                                                                             |
-| - [WeightBatchBytesSize](#Sequencer_WeightBatchBytesSize )                   | No      | integer | No         | -          | WeightBatchBytesSize is the cost weight for the BatchBytesSize batch resource                                                                      |
-| - [WeightCumulativeGasUsed](#Sequencer_WeightCumulativeGasUsed )             | No      | integer | No         | -          | WeightCumulativeGasUsed is the cost weight for the CumulativeGasUsed batch resource                                                                |
-| - [WeightKeccakHashes](#Sequencer_WeightKeccakHashes )                       | No      | integer | No         | -          | WeightKeccakHashes is the cost weight for the KeccakHashes batch resource                                                                          |
-| - [WeightPoseidonHashes](#Sequencer_WeightPoseidonHashes )                   | No      | integer | No         | -          | WeightPoseidonHashes is the cost weight for the PoseidonHashes batch resource                                                                      |
-| - [WeightPoseidonPaddings](#Sequencer_WeightPoseidonPaddings )               | No      | integer | No         | -          | WeightPoseidonPaddings is the cost weight for the PoseidonPaddings batch resource                                                                  |
-| - [WeightMemAligns](#Sequencer_WeightMemAligns )                             | No      | integer | No         | -          | WeightMemAligns is the cost weight for the MemAligns batch resource                                                                                |
-| - [WeightArithmetics](#Sequencer_WeightArithmetics )                         | No      | integer | No         | -          | WeightArithmetics is the cost weight for the Arithmetics batch resource                                                                            |
-| - [WeightBinaries](#Sequencer_WeightBinaries )                               | No      | integer | No         | -          | WeightBinaries is the cost weight for the Binaries batch resource                                                                                  |
-| - [WeightSteps](#Sequencer_WeightSteps )                                     | No      | integer | No         | -          | WeightSteps is the cost weight for the Steps batch resource                                                                                        |
 | - [TxLifetimeCheckTimeout](#Sequencer_TxLifetimeCheckTimeout )               | No      | string  | No         | -          | Duration                                                                                                                                           |
 | - [MaxTxLifetime](#Sequencer_MaxTxLifetime )                                 | No      | string  | No         | -          | Duration                                                                                                                                           |
 | - [Finalizer](#Sequencer_Finalizer )                                         | No      | object  | No         | -          | Finalizer's specific config properties                                                                                                             |
 | - [DBManager](#Sequencer_DBManager )                                         | No      | object  | No         | -          | DBManager's specific config properties                                                                                                             |
-| - [Worker](#Sequencer_Worker )                                               | No      | object  | No         | -          | Worker's specific config properties                                                                                                                |
 | - [EffectiveGasPrice](#Sequencer_EffectiveGasPrice )                         | No      | object  | No         | -          | EffectiveGasPrice is the config for the gas price                                                                                                  |
 
 ### <a name="Sequencer_WaitPeriodPoolIsEmpty"></a>10.1. `Sequencer.WaitPeriodPoolIsEmpty`
@@ -1177,133 +1224,7 @@ MaxBinaries=473170
 MaxSteps=7570538
 ```
 
-### <a name="Sequencer_WeightBatchBytesSize"></a>10.14. `Sequencer.WeightBatchBytesSize`
-
-**Type:** : `integer`
-
-**Default:** `1`
-
-**Description:** WeightBatchBytesSize is the cost weight for the BatchBytesSize batch resource
-
-**Example setting the default value** (1):
-```
-[Sequencer]
-WeightBatchBytesSize=1
-```
-
-### <a name="Sequencer_WeightCumulativeGasUsed"></a>10.15. `Sequencer.WeightCumulativeGasUsed`
-
-**Type:** : `integer`
-
-**Default:** `1`
-
-**Description:** WeightCumulativeGasUsed is the cost weight for the CumulativeGasUsed batch resource
-
-**Example setting the default value** (1):
-```
-[Sequencer]
-WeightCumulativeGasUsed=1
-```
-
-### <a name="Sequencer_WeightKeccakHashes"></a>10.16. `Sequencer.WeightKeccakHashes`
-
-**Type:** : `integer`
-
-**Default:** `1`
-
-**Description:** WeightKeccakHashes is the cost weight for the KeccakHashes batch resource
-
-**Example setting the default value** (1):
-```
-[Sequencer]
-WeightKeccakHashes=1
-```
-
-### <a name="Sequencer_WeightPoseidonHashes"></a>10.17. `Sequencer.WeightPoseidonHashes`
-
-**Type:** : `integer`
-
-**Default:** `1`
-
-**Description:** WeightPoseidonHashes is the cost weight for the PoseidonHashes batch resource
-
-**Example setting the default value** (1):
-```
-[Sequencer]
-WeightPoseidonHashes=1
-```
-
-### <a name="Sequencer_WeightPoseidonPaddings"></a>10.18. `Sequencer.WeightPoseidonPaddings`
-
-**Type:** : `integer`
-
-**Default:** `1`
-
-**Description:** WeightPoseidonPaddings is the cost weight for the PoseidonPaddings batch resource
-
-**Example setting the default value** (1):
-```
-[Sequencer]
-WeightPoseidonPaddings=1
-```
-
-### <a name="Sequencer_WeightMemAligns"></a>10.19. `Sequencer.WeightMemAligns`
-
-**Type:** : `integer`
-
-**Default:** `1`
-
-**Description:** WeightMemAligns is the cost weight for the MemAligns batch resource
-
-**Example setting the default value** (1):
-```
-[Sequencer]
-WeightMemAligns=1
-```
-
-### <a name="Sequencer_WeightArithmetics"></a>10.20. `Sequencer.WeightArithmetics`
-
-**Type:** : `integer`
-
-**Default:** `1`
-
-**Description:** WeightArithmetics is the cost weight for the Arithmetics batch resource
-
-**Example setting the default value** (1):
-```
-[Sequencer]
-WeightArithmetics=1
-```
-
-### <a name="Sequencer_WeightBinaries"></a>10.21. `Sequencer.WeightBinaries`
-
-**Type:** : `integer`
-
-**Default:** `1`
-
-**Description:** WeightBinaries is the cost weight for the Binaries batch resource
-
-**Example setting the default value** (1):
-```
-[Sequencer]
-WeightBinaries=1
-```
-
-### <a name="Sequencer_WeightSteps"></a>10.22. `Sequencer.WeightSteps`
-
-**Type:** : `integer`
-
-**Default:** `1`
-
-**Description:** WeightSteps is the cost weight for the Steps batch resource
-
-**Example setting the default value** (1):
-```
-[Sequencer]
-WeightSteps=1
-```
-
-### <a name="Sequencer_TxLifetimeCheckTimeout"></a>10.23. `Sequencer.TxLifetimeCheckTimeout`
+### <a name="Sequencer_TxLifetimeCheckTimeout"></a>10.14. `Sequencer.TxLifetimeCheckTimeout`
 
 **Title:** Duration
 
@@ -1329,7 +1250,7 @@ WeightSteps=1
 TxLifetimeCheckTimeout="10m0s"
 ```
 
-### <a name="Sequencer_MaxTxLifetime"></a>10.24. `Sequencer.MaxTxLifetime`
+### <a name="Sequencer_MaxTxLifetime"></a>10.15. `Sequencer.MaxTxLifetime`
 
 **Title:** Duration
 
@@ -1355,7 +1276,7 @@ TxLifetimeCheckTimeout="10m0s"
 MaxTxLifetime="3h0m0s"
 ```
 
-### <a name="Sequencer_Finalizer"></a>10.25. `[Sequencer.Finalizer]`
+### <a name="Sequencer_Finalizer"></a>10.16. `[Sequencer.Finalizer]`
 
 **Type:** : `object`
 **Description:** Finalizer's specific config properties
@@ -1374,7 +1295,7 @@ MaxTxLifetime="3h0m0s"
 | - [TimestampResolution](#Sequencer_Finalizer_TimestampResolution )                                                             | No      | string  | No         | -          | Duration                                                                                                                                                                                                       |
 | - [StopSequencerOnBatchNum](#Sequencer_Finalizer_StopSequencerOnBatchNum )                                                     | No      | integer | No         | -          | StopSequencerOnBatchNum specifies the batch number where the Sequencer will stop to process more transactions and generate new batches. The Sequencer will halt after it closes the batch equal to this number |
 
-#### <a name="Sequencer_Finalizer_GERDeadlineTimeout"></a>10.25.1. `Sequencer.Finalizer.GERDeadlineTimeout`
+#### <a name="Sequencer_Finalizer_GERDeadlineTimeout"></a>10.16.1. `Sequencer.Finalizer.GERDeadlineTimeout`
 
 **Title:** Duration
 
@@ -1400,7 +1321,7 @@ MaxTxLifetime="3h0m0s"
 GERDeadlineTimeout="5s"
 ```
 
-#### <a name="Sequencer_Finalizer_ForcedBatchDeadlineTimeout"></a>10.25.2. `Sequencer.Finalizer.ForcedBatchDeadlineTimeout`
+#### <a name="Sequencer_Finalizer_ForcedBatchDeadlineTimeout"></a>10.16.2. `Sequencer.Finalizer.ForcedBatchDeadlineTimeout`
 
 **Title:** Duration
 
@@ -1426,7 +1347,7 @@ GERDeadlineTimeout="5s"
 ForcedBatchDeadlineTimeout="1m0s"
 ```
 
-#### <a name="Sequencer_Finalizer_SleepDuration"></a>10.25.3. `Sequencer.Finalizer.SleepDuration`
+#### <a name="Sequencer_Finalizer_SleepDuration"></a>10.16.3. `Sequencer.Finalizer.SleepDuration`
 
 **Title:** Duration
 
@@ -1452,7 +1373,7 @@ ForcedBatchDeadlineTimeout="1m0s"
 SleepDuration="100ms"
 ```
 
-#### <a name="Sequencer_Finalizer_ResourcePercentageToCloseBatch"></a>10.25.4. `Sequencer.Finalizer.ResourcePercentageToCloseBatch`
+#### <a name="Sequencer_Finalizer_ResourcePercentageToCloseBatch"></a>10.16.4. `Sequencer.Finalizer.ResourcePercentageToCloseBatch`
 
 **Type:** : `integer`
 
@@ -1466,7 +1387,7 @@ SleepDuration="100ms"
 ResourcePercentageToCloseBatch=10
 ```
 
-#### <a name="Sequencer_Finalizer_GERFinalityNumberOfBlocks"></a>10.25.5. `Sequencer.Finalizer.GERFinalityNumberOfBlocks`
+#### <a name="Sequencer_Finalizer_GERFinalityNumberOfBlocks"></a>10.16.5. `Sequencer.Finalizer.GERFinalityNumberOfBlocks`
 
 **Type:** : `integer`
 
@@ -1480,7 +1401,7 @@ ResourcePercentageToCloseBatch=10
 GERFinalityNumberOfBlocks=64
 ```
 
-#### <a name="Sequencer_Finalizer_ClosingSignalsManagerWaitForCheckingL1Timeout"></a>10.25.6. `Sequencer.Finalizer.ClosingSignalsManagerWaitForCheckingL1Timeout`
+#### <a name="Sequencer_Finalizer_ClosingSignalsManagerWaitForCheckingL1Timeout"></a>10.16.6. `Sequencer.Finalizer.ClosingSignalsManagerWaitForCheckingL1Timeout`
 
 **Title:** Duration
 
@@ -1506,7 +1427,7 @@ GERFinalityNumberOfBlocks=64
 ClosingSignalsManagerWaitForCheckingL1Timeout="10s"
 ```
 
-#### <a name="Sequencer_Finalizer_ClosingSignalsManagerWaitForCheckingGER"></a>10.25.7. `Sequencer.Finalizer.ClosingSignalsManagerWaitForCheckingGER`
+#### <a name="Sequencer_Finalizer_ClosingSignalsManagerWaitForCheckingGER"></a>10.16.7. `Sequencer.Finalizer.ClosingSignalsManagerWaitForCheckingGER`
 
 **Title:** Duration
 
@@ -1532,7 +1453,7 @@ ClosingSignalsManagerWaitForCheckingL1Timeout="10s"
 ClosingSignalsManagerWaitForCheckingGER="10s"
 ```
 
-#### <a name="Sequencer_Finalizer_ClosingSignalsManagerWaitForCheckingForcedBatches"></a>10.25.8. `Sequencer.Finalizer.ClosingSignalsManagerWaitForCheckingForcedBatches`
+#### <a name="Sequencer_Finalizer_ClosingSignalsManagerWaitForCheckingForcedBatches"></a>10.16.8. `Sequencer.Finalizer.ClosingSignalsManagerWaitForCheckingForcedBatches`
 
 **Title:** Duration
 
@@ -1558,7 +1479,7 @@ ClosingSignalsManagerWaitForCheckingGER="10s"
 ClosingSignalsManagerWaitForCheckingForcedBatches="10s"
 ```
 
-#### <a name="Sequencer_Finalizer_ForcedBatchesFinalityNumberOfBlocks"></a>10.25.9. `Sequencer.Finalizer.ForcedBatchesFinalityNumberOfBlocks`
+#### <a name="Sequencer_Finalizer_ForcedBatchesFinalityNumberOfBlocks"></a>10.16.9. `Sequencer.Finalizer.ForcedBatchesFinalityNumberOfBlocks`
 
 **Type:** : `integer`
 
@@ -1572,7 +1493,7 @@ ClosingSignalsManagerWaitForCheckingForcedBatches="10s"
 ForcedBatchesFinalityNumberOfBlocks=64
 ```
 
-#### <a name="Sequencer_Finalizer_TimestampResolution"></a>10.25.10. `Sequencer.Finalizer.TimestampResolution`
+#### <a name="Sequencer_Finalizer_TimestampResolution"></a>10.16.10. `Sequencer.Finalizer.TimestampResolution`
 
 **Title:** Duration
 
@@ -1598,7 +1519,7 @@ ForcedBatchesFinalityNumberOfBlocks=64
 TimestampResolution="10s"
 ```
 
-#### <a name="Sequencer_Finalizer_StopSequencerOnBatchNum"></a>10.25.11. `Sequencer.Finalizer.StopSequencerOnBatchNum`
+#### <a name="Sequencer_Finalizer_StopSequencerOnBatchNum"></a>10.16.11. `Sequencer.Finalizer.StopSequencerOnBatchNum`
 
 **Type:** : `integer`
 
@@ -1612,7 +1533,7 @@ TimestampResolution="10s"
 StopSequencerOnBatchNum=0
 ```
 
-### <a name="Sequencer_DBManager"></a>10.26. `[Sequencer.DBManager]`
+### <a name="Sequencer_DBManager"></a>10.17. `[Sequencer.DBManager]`
 
 **Type:** : `object`
 **Description:** DBManager's specific config properties
@@ -1622,7 +1543,7 @@ StopSequencerOnBatchNum=0
 | - [PoolRetrievalInterval](#Sequencer_DBManager_PoolRetrievalInterval )       | No      | string | No         | -          | Duration          |
 | - [L2ReorgRetrievalInterval](#Sequencer_DBManager_L2ReorgRetrievalInterval ) | No      | string | No         | -          | Duration          |
 
-#### <a name="Sequencer_DBManager_PoolRetrievalInterval"></a>10.26.1. `Sequencer.DBManager.PoolRetrievalInterval`
+#### <a name="Sequencer_DBManager_PoolRetrievalInterval"></a>10.17.1. `Sequencer.DBManager.PoolRetrievalInterval`
 
 **Title:** Duration
 
@@ -1646,7 +1567,7 @@ StopSequencerOnBatchNum=0
 PoolRetrievalInterval="500ms"
 ```
 
-#### <a name="Sequencer_DBManager_L2ReorgRetrievalInterval"></a>10.26.2. `Sequencer.DBManager.L2ReorgRetrievalInterval`
+#### <a name="Sequencer_DBManager_L2ReorgRetrievalInterval"></a>10.17.2. `Sequencer.DBManager.L2ReorgRetrievalInterval`
 
 **Title:** Duration
 
@@ -1670,30 +1591,7 @@ PoolRetrievalInterval="500ms"
 L2ReorgRetrievalInterval="5s"
 ```
 
-### <a name="Sequencer_Worker"></a>10.27. `[Sequencer.Worker]`
-
-**Type:** : `object`
-**Description:** Worker's specific config properties
-
-| Property                                                              | Pattern | Type   | Deprecated | Definition | Title/Description                                              |
-| --------------------------------------------------------------------- | ------- | ------ | ---------- | ---------- | -------------------------------------------------------------- |
-| - [ResourceCostMultiplier](#Sequencer_Worker_ResourceCostMultiplier ) | No      | number | No         | -          | ResourceCostMultiplier is the multiplier for the resource cost |
-
-#### <a name="Sequencer_Worker_ResourceCostMultiplier"></a>10.27.1. `Sequencer.Worker.ResourceCostMultiplier`
-
-**Type:** : `number`
-
-**Default:** `1000`
-
-**Description:** ResourceCostMultiplier is the multiplier for the resource cost
-
-**Example setting the default value** (1000):
-```
-[Sequencer.Worker]
-ResourceCostMultiplier=1000
-```
-
-### <a name="Sequencer_EffectiveGasPrice"></a>10.28. `[Sequencer.EffectiveGasPrice]`
+### <a name="Sequencer_EffectiveGasPrice"></a>10.18. `[Sequencer.EffectiveGasPrice]`
 
 **Type:** : `object`
 **Description:** EffectiveGasPrice is the config for the gas price
@@ -1707,7 +1605,7 @@ ResourceCostMultiplier=1000
 | - [Enabled](#Sequencer_EffectiveGasPrice_Enabled )                                                                 | No      | boolean | No         | -          | Enabled is a flag to enable/disable the effective gas price                                                                         |
 | - [DefaultMinGasPriceAllowed](#Sequencer_EffectiveGasPrice_DefaultMinGasPriceAllowed )                             | No      | integer | No         | -          | DefaultMinGasPriceAllowed is the default min gas price to suggest<br />This value is assigned from [Pool].DefaultMinGasPriceAllowed |
 
-#### <a name="Sequencer_EffectiveGasPrice_MaxBreakEvenGasPriceDeviationPercentage"></a>10.28.1. `Sequencer.EffectiveGasPrice.MaxBreakEvenGasPriceDeviationPercentage`
+#### <a name="Sequencer_EffectiveGasPrice_MaxBreakEvenGasPriceDeviationPercentage"></a>10.18.1. `Sequencer.EffectiveGasPrice.MaxBreakEvenGasPriceDeviationPercentage`
 
 **Type:** : `integer`
 
@@ -1721,7 +1619,7 @@ ResourceCostMultiplier=1000
 MaxBreakEvenGasPriceDeviationPercentage=10
 ```
 
-#### <a name="Sequencer_EffectiveGasPrice_L1GasPriceFactor"></a>10.28.2. `Sequencer.EffectiveGasPrice.L1GasPriceFactor`
+#### <a name="Sequencer_EffectiveGasPrice_L1GasPriceFactor"></a>10.18.2. `Sequencer.EffectiveGasPrice.L1GasPriceFactor`
 
 **Type:** : `number`
 
@@ -1735,7 +1633,7 @@ MaxBreakEvenGasPriceDeviationPercentage=10
 L1GasPriceFactor=0.25
 ```
 
-#### <a name="Sequencer_EffectiveGasPrice_ByteGasCost"></a>10.28.3. `Sequencer.EffectiveGasPrice.ByteGasCost`
+#### <a name="Sequencer_EffectiveGasPrice_ByteGasCost"></a>10.18.3. `Sequencer.EffectiveGasPrice.ByteGasCost`
 
 **Type:** : `integer`
 
@@ -1749,7 +1647,7 @@ L1GasPriceFactor=0.25
 ByteGasCost=16
 ```
 
-#### <a name="Sequencer_EffectiveGasPrice_MarginFactor"></a>10.28.4. `Sequencer.EffectiveGasPrice.MarginFactor`
+#### <a name="Sequencer_EffectiveGasPrice_MarginFactor"></a>10.18.4. `Sequencer.EffectiveGasPrice.MarginFactor`
 
 **Type:** : `number`
 
@@ -1763,7 +1661,7 @@ ByteGasCost=16
 MarginFactor=1
 ```
 
-#### <a name="Sequencer_EffectiveGasPrice_Enabled"></a>10.28.5. `Sequencer.EffectiveGasPrice.Enabled`
+#### <a name="Sequencer_EffectiveGasPrice_Enabled"></a>10.18.5. `Sequencer.EffectiveGasPrice.Enabled`
 
 **Type:** : `boolean`
 
@@ -1777,7 +1675,7 @@ MarginFactor=1
 Enabled=false
 ```
 
-#### <a name="Sequencer_EffectiveGasPrice_DefaultMinGasPriceAllowed"></a>10.28.6. `Sequencer.EffectiveGasPrice.DefaultMinGasPriceAllowed`
+#### <a name="Sequencer_EffectiveGasPrice_DefaultMinGasPriceAllowed"></a>10.18.6. `Sequencer.EffectiveGasPrice.DefaultMinGasPriceAllowed`
 
 **Type:** : `integer`
 
@@ -1797,14 +1695,15 @@ DefaultMinGasPriceAllowed=0
 **Type:** : `object`
 **Description:** Configuration of the sequence sender service
 
-| Property                                                                                                | Pattern | Type            | Deprecated | Definition | Title/Description                                                                                                                  |
-| ------------------------------------------------------------------------------------------------------- | ------- | --------------- | ---------- | ---------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| - [WaitPeriodSendSequence](#SequenceSender_WaitPeriodSendSequence )                                     | No      | string          | No         | -          | Duration                                                                                                                           |
-| - [LastBatchVirtualizationTimeMaxWaitPeriod](#SequenceSender_LastBatchVirtualizationTimeMaxWaitPeriod ) | No      | string          | No         | -          | Duration                                                                                                                           |
-| - [MaxBatchesForL1](#SequenceSender_MaxBatchesForL1 )                                                   | No      | integer         | No         | -          | MaxBatchesForL1 is the maximum amount of batches to be sequenced in a single L1 tx                                                 |
-| - [SenderAddress](#SequenceSender_SenderAddress )                                                       | No      | string          | No         | -          | SenderAddress defines which private key the eth tx manager needs to use<br />to sign the L1 txs                                    |
-| - [PrivateKeys](#SequenceSender_PrivateKeys )                                                           | No      | array of object | No         | -          | PrivateKeys defines all the key store files that are going<br />to be read in order to provide the private keys to sign the L1 txs |
-| - [ForkUpgradeBatchNumber](#SequenceSender_ForkUpgradeBatchNumber )                                     | No      | integer         | No         | -          | Batch number where there is a forkid change (fork upgrade)                                                                         |
+| Property                                                                                                | Pattern | Type             | Deprecated | Definition | Title/Description                                                                                                                 |
+| ------------------------------------------------------------------------------------------------------- | ------- | ---------------- | ---------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| - [WaitPeriodSendSequence](#SequenceSender_WaitPeriodSendSequence )                                     | No      | string           | No         | -          | Duration                                                                                                                          |
+| - [LastBatchVirtualizationTimeMaxWaitPeriod](#SequenceSender_LastBatchVirtualizationTimeMaxWaitPeriod ) | No      | string           | No         | -          | Duration                                                                                                                          |
+| - [MaxBatchesForL1](#SequenceSender_MaxBatchesForL1 )                                                   | No      | integer          | No         | -          | MaxBatchesForL1 is the maximum amount of batches to be sequenced in a single L1 tx                                                |
+| - [SenderAddress](#SequenceSender_SenderAddress )                                                       | No      | array of integer | No         | -          | SenderAddress defines which private key the eth tx manager needs to use<br />to sign the L1 txs                                   |
+| - [L2Coinbase](#SequenceSender_L2Coinbase )                                                             | No      | array of integer | No         | -          | L2Coinbase defines which addess is going to receive the fees                                                                      |
+| - [PrivateKey](#SequenceSender_PrivateKey )                                                             | No      | object           | No         | -          | PrivateKey defines all the key store files that are going<br />to be read in order to provide the private keys to sign the L1 txs |
+| - [ForkUpgradeBatchNumber](#SequenceSender_ForkUpgradeBatchNumber )                                     | No      | integer          | No         | -          | Batch number where there is a forkid change (fork upgrade)                                                                        |
 
 ### <a name="SequenceSender_WaitPeriodSendSequence"></a>11.1. `SequenceSender.WaitPeriodSendSequence`
 
@@ -1875,67 +1774,64 @@ MaxBatchesForL1=1000
 
 ### <a name="SequenceSender_SenderAddress"></a>11.4. `SequenceSender.SenderAddress`
 
-**Type:** : `string`
+**Type:** : `array of integer`
+**Description:** SenderAddress defines which private key the eth tx manager needs to use
+to sign the L1 txs
+
+### <a name="SequenceSender_L2Coinbase"></a>11.5. `SequenceSender.L2Coinbase`
+
+**Type:** : `array of integer`
 
 **Default:** `"0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266"`
 
-**Description:** SenderAddress defines which private key the eth tx manager needs to use
-to sign the L1 txs
+**Description:** L2Coinbase defines which addess is going to receive the fees
 
 **Example setting the default value** ("0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266"):
 ```
 [SequenceSender]
-SenderAddress="0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266"
+L2Coinbase="0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266"
 ```
 
-### <a name="SequenceSender_PrivateKeys"></a>11.5. `SequenceSender.PrivateKeys`
-
-**Type:** : `array of object`
-
-**Default:** `[{"Path": "/pk/sequencer.keystore", "Password": "testonly"}]`
-
-**Description:** PrivateKeys defines all the key store files that are going
-to be read in order to provide the private keys to sign the L1 txs
-
-**Example setting the default value** ([{"Path": "/pk/sequencer.keystore", "Password": "testonly"}]):
-```
-[SequenceSender]
-PrivateKeys=[{"Path": "/pk/sequencer.keystore", "Password": "testonly"}]
-```
-
-|                      | Array restrictions |
-| -------------------- | ------------------ |
-| **Min items**        | N/A                |
-| **Max items**        | N/A                |
-| **Items unicity**    | False              |
-| **Additional items** | False              |
-| **Tuple validation** | See below          |
-
-| Each item of this array must be                        | Description                                                                          |
-| ------------------------------------------------------ | ------------------------------------------------------------------------------------ |
-| [PrivateKeys items](#SequenceSender_PrivateKeys_items) | KeystoreFileConfig has all the information needed to load a private key from a k ... |
-
-#### <a name="autogenerated_heading_3"></a>11.5.1. [SequenceSender.PrivateKeys.PrivateKeys items]
+### <a name="SequenceSender_PrivateKey"></a>11.6. `[SequenceSender.PrivateKey]`
 
 **Type:** : `object`
-**Description:** KeystoreFileConfig has all the information needed to load a private key from a key store file
+**Description:** PrivateKey defines all the key store files that are going
+to be read in order to provide the private keys to sign the L1 txs
 
-| Property                                                  | Pattern | Type   | Deprecated | Definition | Title/Description                                      |
-| --------------------------------------------------------- | ------- | ------ | ---------- | ---------- | ------------------------------------------------------ |
-| - [Path](#SequenceSender_PrivateKeys_items_Path )         | No      | string | No         | -          | Path is the file path for the key store file           |
-| - [Password](#SequenceSender_PrivateKeys_items_Password ) | No      | string | No         | -          | Password is the password to decrypt the key store file |
+| Property                                           | Pattern | Type   | Deprecated | Definition | Title/Description                                      |
+| -------------------------------------------------- | ------- | ------ | ---------- | ---------- | ------------------------------------------------------ |
+| - [Path](#SequenceSender_PrivateKey_Path )         | No      | string | No         | -          | Path is the file path for the key store file           |
+| - [Password](#SequenceSender_PrivateKey_Password ) | No      | string | No         | -          | Password is the password to decrypt the key store file |
 
-##### <a name="SequenceSender_PrivateKeys_items_Path"></a>11.5.1.1. `SequenceSender.PrivateKeys.PrivateKeys items.Path`
+#### <a name="SequenceSender_PrivateKey_Path"></a>11.6.1. `SequenceSender.PrivateKey.Path`
 
 **Type:** : `string`
+
+**Default:** `"/pk/sequencer.keystore"`
+
 **Description:** Path is the file path for the key store file
 
-##### <a name="SequenceSender_PrivateKeys_items_Password"></a>11.5.1.2. `SequenceSender.PrivateKeys.PrivateKeys items.Password`
+**Example setting the default value** ("/pk/sequencer.keystore"):
+```
+[SequenceSender.PrivateKey]
+Path="/pk/sequencer.keystore"
+```
+
+#### <a name="SequenceSender_PrivateKey_Password"></a>11.6.2. `SequenceSender.PrivateKey.Password`
 
 **Type:** : `string`
+
+**Default:** `"testonly"`
+
 **Description:** Password is the password to decrypt the key store file
 
-### <a name="SequenceSender_ForkUpgradeBatchNumber"></a>11.6. `SequenceSender.ForkUpgradeBatchNumber`
+**Example setting the default value** ("testonly"):
+```
+[SequenceSender.PrivateKey]
+Password="testonly"
+```
+
+### <a name="SequenceSender_ForkUpgradeBatchNumber"></a>11.7. `SequenceSender.ForkUpgradeBatchNumber`
 
 **Type:** : `integer`
 
@@ -2325,7 +2221,7 @@ GenesisBlockNum=0
 | ------------------------------------------------------------------- | ------------------------------------------------------------------------- |
 | [GenesisActions items](#NetworkConfig_Genesis_GenesisActions_items) | GenesisAction represents one of the values set on the SMT during genesis. |
 
-##### <a name="autogenerated_heading_4"></a>13.4.3.1. [NetworkConfig.Genesis.GenesisActions.GenesisActions items]
+##### <a name="autogenerated_heading_3"></a>13.4.3.1. [NetworkConfig.Genesis.GenesisActions.GenesisActions items]
 
 **Type:** : `object`
 **Description:** GenesisAction represents one of the values set on the SMT during genesis.

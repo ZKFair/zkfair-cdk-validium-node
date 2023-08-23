@@ -500,6 +500,7 @@ func (etherMan *Client) WaitTxToBeMined(ctx context.Context, tx *types.Transacti
 func (etherMan *Client) EstimateGasSequenceBatches(
 	sender common.Address,
 	sequences []ethmanTypes.Sequence,
+	l2Coinbase common.Address,
 	committeeSignaturesAndAddrs []byte,
 ) (*types.Transaction, error) {
 	opts, err := etherMan.getAuthByAddress(sender)
@@ -508,7 +509,7 @@ func (etherMan *Client) EstimateGasSequenceBatches(
 	}
 	opts.NoSend = true
 
-	tx, err := etherMan.sequenceBatches(opts, sequences, committeeSignaturesAndAddrs)
+	tx, err := etherMan.sequenceBatches(opts, sequences, l2Coinbase, committeeSignaturesAndAddrs)
 	if err != nil {
 		return nil, err
 	}
@@ -520,6 +521,7 @@ func (etherMan *Client) EstimateGasSequenceBatches(
 func (etherMan *Client) BuildSequenceBatchesTxData(
 	sender common.Address,
 	sequences []ethmanTypes.Sequence,
+	l2Coinbase common.Address,
 	committeeSignaturesAndAddrs []byte,
 ) (to *common.Address, data []byte, err error) {
 	opts, err := etherMan.getAuthByAddress(sender)
@@ -532,7 +534,7 @@ func (etherMan *Client) BuildSequenceBatchesTxData(
 	opts.GasLimit = uint64(1)
 	opts.GasPrice = big.NewInt(1)
 
-	tx, err := etherMan.sequenceBatches(opts, sequences, committeeSignaturesAndAddrs)
+	tx, err := etherMan.sequenceBatches(opts, sequences, l2Coinbase, committeeSignaturesAndAddrs)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -543,6 +545,7 @@ func (etherMan *Client) BuildSequenceBatchesTxData(
 func (etherMan *Client) sequenceBatches(
 	opts bind.TransactOpts,
 	sequences []ethmanTypes.Sequence,
+	l2Coinbase common.Address,
 	committeeSignaturesAndAddrs []byte,
 ) (*types.Transaction, error) {
 	var batches []supernets2.Supernets2BatchData
@@ -557,7 +560,7 @@ func (etherMan *Client) sequenceBatches(
 		batches = append(batches, batch)
 	}
 
-	tx, err := etherMan.Supernets2.SequenceBatches(&opts, batches, opts.From, committeeSignaturesAndAddrs)
+	tx, err := etherMan.Supernets2.SequenceBatches(&opts, batches, l2Coinbase, committeeSignaturesAndAddrs)
 	if err != nil {
 		if parsedErr, ok := tryParseError(err); ok {
 			err = parsedErr

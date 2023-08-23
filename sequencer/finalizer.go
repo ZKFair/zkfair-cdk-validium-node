@@ -60,12 +60,10 @@ type finalizer struct {
 	maxBreakEvenGasPriceDeviationPercentage *big.Int
 	defaultMinGasPriceAllowed               uint64
 	// Processed txs
-	pendingTxsToStore            chan transactionToStore
-	pendingTxsToStoreWG          *sync.WaitGroup
-	pendingTxsToStoreMux         *sync.RWMutex
-	pendingTxsPerAddressTrackers map[common.Address]*pendingTxPerAddressTracker
+	pendingTransactionsToStore   chan transactionToStore
+	pendingTransactionsToStoreWG *sync.WaitGroup
 	storedFlushID                uint64
-	storedFlushIDCond            *sync.Cond
+	storedFlushIDCond            *sync.Cond //Condition to wait until storedFlushID has been updated
 	proverID                     string
 	lastPendingFlushID           uint64
 	pendingFlushIDCond           *sync.Cond
@@ -114,8 +112,6 @@ func newFinalizer(
 	closingSignalCh ClosingSignalCh,
 	batchConstraints batchConstraints,
 	eventLog *event.EventLog,
-	pendingTxsToStoreMux *sync.RWMutex,
-	pendingTxsPerAddressTrackers map[common.Address]*pendingTxPerAddressTracker,
 ) *finalizer {
 	return &finalizer{
 		cfg:                  cfg,
@@ -142,10 +138,8 @@ func newFinalizer(
 		// event log
 		eventLog:                                eventLog,
 		maxBreakEvenGasPriceDeviationPercentage: new(big.Int).SetUint64(effectiveGasPriceCfg.MaxBreakEvenGasPriceDeviationPercentage),
-		pendingTxsToStore:                       make(chan transactionToStore, batchConstraints.MaxTxsPerBatch*pendingTxsBufferSizeMultiplier),
-		pendingTxsToStoreWG:                     new(sync.WaitGroup),
-		pendingTxsToStoreMux:                    pendingTxsToStoreMux,
-		pendingTxsPerAddressTrackers:            pendingTxsPerAddressTrackers,
+		pendingTransactionsToStore:              make(chan transactionToStore, batchConstraints.MaxTxsPerBatch*pendingTxsBufferSizeMultiplier),
+		pendingTransactionsToStoreWG:            new(sync.WaitGroup),
 		storedFlushID:                           0,
 		// Mutex is unlocked when the condition is broadcasted
 		storedFlushIDCond:  sync.NewCond(&sync.Mutex{}),
@@ -188,10 +182,53 @@ func (f *finalizer) Start(ctx context.Context, batch *WipBatch, processingReq *s
 	f.finalizeBatches(ctx)
 }
 
+// storePendingTransactions stores the pending transactions in the database
+func (f *finalizer) storePendingTransactions(ctx context.Context) {
+	for {
+		select {
+		case tx, ok := <-f.pendingTransactionsToStore:
+			if !ok {
+				// Channel is closed
+				return
+			}
+
+			// Wait until f.storedFlushID >= tx.flushId
+			f.storedFlushIDCond.L.Lock()
+			for f.storedFlushID < tx.flushId {
+				f.storedFlushIDCond.Wait()
+				// check if context is done after waking up
+				if ctx.Err() != nil {
+					f.storedFlushIDCond.L.Unlock()
+					return
+				}
+			}
+			f.storedFlushIDCond.L.Unlock()
+
+			// Now f.storedFlushID >= tx.flushId, we can store tx
+			f.storeProcessedTx(ctx, tx)
+
+			if tx.txTracker != nil {
+				// Delete the txTracker from the pending list in the worker (addrQueue)
+				f.worker.DeletePendingTxToStore(tx.txTracker.Hash, tx.txTracker.From)
+			}
+
+			f.pendingTransactionsToStoreWG.Done()
+		case <-ctx.Done():
+			// The context was cancelled from outside, Wait for all goroutines to finish, cleanup and exit
+			f.pendingTransactionsToStoreWG.Wait()
+			return
+		default:
+			time.Sleep(100 * time.Millisecond) //nolint:gomnd
+		}
+	}
+}
+
 // updateProverIdAndFlushId updates the prover id and flush id
 func (f *finalizer) updateProverIdAndFlushId(ctx context.Context) {
 	for {
 		f.pendingFlushIDCond.L.Lock()
+		// f.storedFlushID is >= than f.lastPendingFlushID, this means all pending txs (flushid) are stored by the executor.
+		// We are "synced" with the flush id, therefore we need to wait for new tx (new pending flush id to be stored by the executor)
 		for f.storedFlushID >= f.lastPendingFlushID {
 			f.pendingFlushIDCond.Wait()
 		}
@@ -203,7 +240,14 @@ func (f *finalizer) updateProverIdAndFlushId(ctx context.Context) {
 				log.Errorf("failed to get stored flush id, Err: %v", err)
 			} else {
 				if storedFlushID != f.storedFlushID {
-					f.checkProverIDAndUpdateStoredFlushID(storedFlushID, proverID)
+					// Check if prover/Executor has been restarted
+					f.checkIfProverRestarted(proverID)
+
+					// Update f.storeFlushID and signal condition f.storedFlushIDCond
+					f.storedFlushIDCond.L.Lock()
+					f.storedFlushID = storedFlushID
+					f.storedFlushIDCond.Broadcast()
+					f.storedFlushIDCond.L.Unlock()
 				}
 			}
 		}
@@ -245,12 +289,31 @@ func (f *finalizer) listenForClosingSignals(ctx context.Context) {
 	}
 }
 
-// updateStoredFlushID updates the stored flush id
-func (f *finalizer) updateStoredFlushID(newFlushID uint64) {
-	f.storedFlushIDCond.L.Lock()
-	f.storedFlushID = newFlushID
-	f.storedFlushIDCond.Broadcast()
-	f.storedFlushIDCond.L.Unlock()
+// updateLastPendingFLushID updates f.lastPendingFLushID with newFlushID value (it it has changed) and sends
+// the signal condition f.pendingFlushIDCond to notify other go funcs that the f.lastPendingFlushID value has changed
+func (f *finalizer) updateLastPendingFlushID(newFlushID uint64) {
+	if newFlushID > f.lastPendingFlushID {
+		f.lastPendingFlushID = newFlushID
+		f.pendingFlushIDCond.Broadcast()
+	}
+}
+
+// addPendingTxToStore adds a pending tx that is ready to be stored in the state DB once its flushid has been stored by the executor
+func (f *finalizer) addPendingTxToStore(ctx context.Context, txToStore transactionToStore) {
+	f.pendingTransactionsToStoreWG.Add(1)
+	if txToStore.txTracker != nil {
+		f.worker.AddPendingTxToStore(txToStore.txTracker.Hash, txToStore.txTracker.From)
+	}
+	select {
+	case f.pendingTransactionsToStore <- txToStore:
+	case <-ctx.Done():
+		// If context is cancelled before we can send to the channel, we must decrement the WaitGroup count and
+		// delete the pending TxToStore added in the worker
+		f.pendingTransactionsToStoreWG.Done()
+		if txToStore.txTracker != nil {
+			f.worker.DeletePendingTxToStore(txToStore.txTracker.Hash, txToStore.txTracker.From)
+		}
+	}
 }
 
 // finalizeBatches runs the endless loop for processing transactions finalizing batches.
@@ -374,7 +437,7 @@ func (f *finalizer) halt(ctx context.Context, err error) {
 }
 
 // checkProverIDAndUpdateStoredFlushID checks if the proverID changed and updates the stored flush id
-func (f *finalizer) checkProverIDAndUpdateStoredFlushID(storedFlushID uint64, proverID string) {
+func (f *finalizer) checkIfProverRestarted(proverID string) {
 	if f.proverID != "" && f.proverID != proverID {
 		event := &event.Event{
 			ReceivedAt:  time.Now(),
@@ -392,51 +455,6 @@ func (f *finalizer) checkProverIDAndUpdateStoredFlushID(storedFlushID uint64, pr
 
 		log.Fatal("restarting sequencer to discard current WIP batch and work with new executor")
 	}
-	f.updateStoredFlushID(storedFlushID)
-}
-
-// storePendingTransactions stores the pending transactions in the database
-func (f *finalizer) storePendingTransactions(ctx context.Context) {
-	for {
-		select {
-		case tx, ok := <-f.pendingTxsToStore:
-			if !ok {
-				// Channel is closed
-				return
-			}
-
-			// Print the formatted timestamp
-			f.storedFlushIDCond.L.Lock()
-			for f.storedFlushID < tx.flushId {
-				f.storedFlushIDCond.Wait()
-				// check if context is done after waking up
-				if ctx.Err() != nil {
-					f.storedFlushIDCond.L.Unlock()
-					return
-				}
-			}
-			f.storedFlushIDCond.L.Unlock()
-
-			// Now f.storedFlushID >= tx.flushId, you can store tx
-			f.storeProcessedTx(ctx, tx)
-			f.pendingTxsToStoreMux.Lock()
-			f.pendingTxsToStoreWG.Done()
-			f.pendingTxsPerAddressTrackers[tx.txTracker.From].wg.Done()
-			f.pendingTxsPerAddressTrackers[tx.txTracker.From].count--
-			// Needed to avoid memory leaks
-			if f.pendingTxsPerAddressTrackers[tx.txTracker.From].count == 0 {
-				delete(f.pendingTxsPerAddressTrackers, tx.txTracker.From)
-			}
-			f.pendingTxsToStoreMux.Unlock()
-
-		case <-ctx.Done():
-			// The context was cancelled from outside, Wait for all goroutines to finish, cleanup and exit
-			f.pendingTxsToStoreWG.Wait()
-			return
-		default:
-			time.Sleep(100 * time.Millisecond) //nolint:gomnd
-		}
-	}
 }
 
 // newWIPBatch closes the current batch and opens a new one, potentially processing forced batches between the batch is closed and the resulting new empty batch
@@ -446,7 +464,7 @@ func (f *finalizer) newWIPBatch(ctx context.Context) (*WipBatch, error) {
 
 	// Wait until all processed transactions are saved
 	startWait := time.Now()
-	f.pendingTxsToStoreWG.Wait()
+	f.pendingTransactionsToStoreWG.Wait()
 	endWait := time.Now()
 
 	log.Info("waiting for pending transactions to be stored took: ", endWait.Sub(startWait).String())
@@ -559,7 +577,7 @@ func (f *finalizer) processTransaction(ctx context.Context, tx *TxTracker) (errW
 
 		effectivePercentage := state.MaxEffectivePercentage
 
-		if tx.BreakEvenGasPrice.Uint64() != 0 {
+		if tx.BreakEvenGasPrice != nil && tx.BreakEvenGasPrice.Uint64() != 0 {
 			// If the tx gas price is lower than the break even gas price, we process the tx with the user gas price (100%)
 			if tx.GasPrice.Cmp(tx.BreakEvenGasPrice) <= 0 {
 				tx.IsEffectiveGasPriceFinalExecution = true
@@ -668,12 +686,12 @@ func (f *finalizer) handleProcessTransactionResponse(ctx context.Context, tx *Tx
 			if diff.Cmp(maxDiff) == 1 {
 				reprocessNeeded = true
 			}
-			log.Infof("calculated newBreakEvenGasPrice: %d, tx.BreakEvenGasprice: %d for tx: %s", newBreakEvenGasPrice, tx.BreakEvenGasPrice, tx.HashStr)
+			log.Infof("calculated newBreakEvenGasPrice: %d, tx.BreakEvenGasPrice: %d for tx: %s", newBreakEvenGasPrice, tx.BreakEvenGasPrice, tx.HashStr)
 			log.Infof("Would need reprocess: %t, diff: %d, maxDiff: %d", reprocessNeeded, diff, maxDiff)
 		}
 	}
 
-	processedTransaction := transactionToStore{
+	txToStore := transactionToStore{
 		txTracker:     tx,
 		response:      result.Responses[0],
 		batchResponse: result,
@@ -685,19 +703,9 @@ func (f *finalizer) handleProcessTransactionResponse(ctx context.Context, tx *Tx
 		flushId:       result.FlushID,
 	}
 
-	f.pendingTxsToStoreMux.Lock()
-	f.pendingTxsToStoreWG.Add(1)
-	if result.FlushID > f.lastPendingFlushID {
-		f.lastPendingFlushID = result.FlushID
-		f.pendingFlushIDCond.Broadcast()
-	}
-	f.pendingTxsToStoreMux.Unlock()
-	select {
-	case f.pendingTxsToStore <- processedTransaction:
-	case <-ctx.Done():
-		// If context is cancelled before we can send to the channel, we must decrement the WaitGroup count
-		f.pendingTxsToStoreWG.Done()
-	}
+	f.updateLastPendingFlushID(result.FlushID)
+
+	f.addPendingTxToStore(ctx, txToStore)
 
 	f.batch.countOfTxs++
 
@@ -722,7 +730,7 @@ func (f *finalizer) handleForcedTxsProcessResp(ctx context.Context, request stat
 			}
 		}
 
-		processedTransaction := transactionToStore{
+		txToStore := transactionToStore{
 			txTracker:     nil,
 			response:      txResp,
 			batchResponse: result,
@@ -734,35 +742,16 @@ func (f *finalizer) handleForcedTxsProcessResp(ctx context.Context, request stat
 			flushId:       result.FlushID,
 		}
 
-		f.pendingTxsToStoreMux.Lock()
-		f.pendingTxsToStoreWG.Add(1)
-		if result.FlushID > f.lastPendingFlushID {
-			f.lastPendingFlushID = result.FlushID
-			f.pendingFlushIDCond.Broadcast()
-		}
-		f.pendingTxsToStoreMux.Unlock()
 		oldStateRoot = txResp.StateRoot
 
-		select {
-		case f.pendingTxsToStore <- processedTransaction:
-		case <-ctx.Done():
-			// If context is cancelled before we can send to the channel, we must decrement the WaitGroup count
-			f.pendingTxsToStoreWG.Done()
-		}
+		f.updateLastPendingFlushID(result.FlushID)
+
+		f.addPendingTxToStore(ctx, txToStore)
 	}
 }
 
 // storeProcessedTx stores the processed transaction in the database.
 func (f *finalizer) storeProcessedTx(ctx context.Context, txToStore transactionToStore) {
-	f.pendingTxsToStoreMux.Lock()
-	if _, ok := f.pendingTxsPerAddressTrackers[txToStore.txTracker.From]; !ok {
-		f.pendingTxsPerAddressTrackers[txToStore.txTracker.From] = new(pendingTxPerAddressTracker)
-		f.pendingTxsPerAddressTrackers[txToStore.txTracker.From].wg = &sync.WaitGroup{}
-	}
-	f.pendingTxsPerAddressTrackers[txToStore.txTracker.From].wg.Add(1)
-	f.pendingTxsPerAddressTrackers[txToStore.txTracker.From].count++
-	f.pendingTxsToStoreMux.Unlock()
-
 	if txToStore.response != nil {
 		log.Infof("storeProcessedTx: storing processed txToStore: %s", txToStore.response.TxHash.String())
 	} else {
@@ -777,9 +766,9 @@ func (f *finalizer) storeProcessedTx(ctx context.Context, txToStore transactionT
 }
 
 func (f *finalizer) updateWorkerAfterSuccessfulProcessing(ctx context.Context, tx *TxTracker, result *state.ProcessBatchResponse) {
-	// Delete the transaction from the efficiency list
+	// Delete the transaction from the txSorted list
 	f.worker.DeleteTx(tx.Hash, tx.From)
-	log.Debug("tx deleted from efficiency list", "txHash", tx.Hash.String(), "from", tx.From.Hex())
+	log.Debug("tx deleted from txSorted list", "txHash", tx.Hash.String(), "from", tx.From.Hex())
 
 	start := time.Now()
 	txsToDelete := f.worker.UpdateAfterSingleSuccessfulTxExecution(tx.From, result.ReadWriteAddresses)
@@ -844,9 +833,9 @@ func (f *finalizer) handleProcessTransactionError(ctx context.Context, result *s
 		}
 		metrics.WorkerProcessingTime(time.Since(start))
 	} else {
-		// Delete the transaction from the efficiency list
+		// Delete the transaction from the txSorted list
 		f.worker.DeleteTx(tx.Hash, tx.From)
-		log.Debug("tx deleted from efficiency list", "txHash", tx.Hash.String(), "from", tx.From.Hex())
+		log.Debug("tx deleted from txSorted list", "txHash", tx.Hash.String(), "from", tx.From.Hex())
 
 		wg.Add(1)
 		go func() {
@@ -1199,7 +1188,7 @@ func (f *finalizer) checkRemainingResources(result *state.ProcessBatchResponse, 
 	if err != nil {
 		log.Infof("current transaction exceeds the batch limit, updating metadata for tx in worker and continuing")
 		start := time.Now()
-		f.worker.UpdateTx(result.Responses[0].TxHash, tx.From, usedResources.ZKCounters)
+		f.worker.UpdateTxZKCounters(result.Responses[0].TxHash, tx.From, usedResources.ZKCounters)
 		metrics.WorkerProcessingTime(time.Since(start))
 		return err
 	}

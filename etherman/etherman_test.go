@@ -335,7 +335,7 @@ func TestSendSequences(t *testing.T) {
 		Timestamp:      int64(currentBlock.Time() - 1),
 		BatchL2Data:    batchL2Data,
 	}
-	tx, err := etherman.sequenceBatches(*auth, []ethmanTypes.Sequence{sequence}, []byte{})
+	tx, err := etherman.sequenceBatches(*auth, []ethmanTypes.Sequence{sequence}, auth.From, []byte{})
 	require.NoError(t, err)
 	log.Debug("TX: ", tx.Hash())
 	ethBackend.Commit()

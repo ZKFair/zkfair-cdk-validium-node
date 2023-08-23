@@ -136,6 +136,16 @@
 					"type": "integer",
 					"description": "ForcedGas is the amount of gas to be forced in case of gas estimation error",
 					"default": 0
+				},
+				"GasPriceMarginFactor": {
+					"type": "number",
+					"description": "GasPriceMarginFactor is used to multiply the suggested gas price provided by the network\nin order to allow a different gas price to be set for all the transactions and making it\neasier to have the txs prioritized in the pool, default value is 1.\n\nex:\nsuggested gas price: 100\nGasPriceMarginFactor: 1\ngas price = 100\n\nsuggested gas price: 100\nGasPriceMarginFactor: 1.1\ngas price = 110",
+					"default": 1
+				},
+				"MaxGasPriceLimit": {
+					"type": "integer",
+					"description": "MaxGasPriceLimit helps avoiding transactions to be sent over an specified\ngas price amount, default value is 0, which means no limit.\nIf the gas price provided by the network and adjusted by the GasPriceMarginFactor\nis greater than this configuration, transaction will have its gas price set to\nthe value configured in this config as the limit.\n\nex:\n\nsuggested gas price: 100\ngas price margin factor: 20%\nmax gas price limit: 150\ntx gas price = 120\n\nsuggested gas price: 100\ngas price margin factor: 20%\nmax gas price limit: 110\ntx gas price = 110",
+					"default": 0
 				}
 			},
 			"additionalProperties": false,
@@ -444,51 +454,6 @@
 					"description": "MaxSteps is max steps batch can handle",
 					"default": 7570538
 				},
-				"WeightBatchBytesSize": {
-					"type": "integer",
-					"description": "WeightBatchBytesSize is the cost weight for the BatchBytesSize batch resource",
-					"default": 1
-				},
-				"WeightCumulativeGasUsed": {
-					"type": "integer",
-					"description": "WeightCumulativeGasUsed is the cost weight for the CumulativeGasUsed batch resource",
-					"default": 1
-				},
-				"WeightKeccakHashes": {
-					"type": "integer",
-					"description": "WeightKeccakHashes is the cost weight for the KeccakHashes batch resource",
-					"default": 1
-				},
-				"WeightPoseidonHashes": {
-					"type": "integer",
-					"description": "WeightPoseidonHashes is the cost weight for the PoseidonHashes batch resource",
-					"default": 1
-				},
-				"WeightPoseidonPaddings": {
-					"type": "integer",
-					"description": "WeightPoseidonPaddings is the cost weight for the PoseidonPaddings batch resource",
-					"default": 1
-				},
-				"WeightMemAligns": {
-					"type": "integer",
-					"description": "WeightMemAligns is the cost weight for the MemAligns batch resource",
-					"default": 1
-				},
-				"WeightArithmetics": {
-					"type": "integer",
-					"description": "WeightArithmetics is the cost weight for the Arithmetics batch resource",
-					"default": 1
-				},
-				"WeightBinaries": {
-					"type": "integer",
-					"description": "WeightBinaries is the cost weight for the Binaries batch resource",
-					"default": 1
-				},
-				"WeightSteps": {
-					"type": "integer",
-					"description": "WeightSteps is the cost weight for the Steps batch resource",
-					"default": 1
-				},
 				"TxLifetimeCheckTimeout": {
 					"type": "string",
 					"title": "Duration",
@@ -631,18 +596,6 @@
 					"type": "object",
 					"description": "DBManager's specific config properties"
 				},
-				"Worker": {
-					"properties": {
-						"ResourceCostMultiplier": {
-							"type": "number",
-							"description": "ResourceCostMultiplier is the multiplier for the resource cost",
-							"default": 1000
-						}
-					},
-					"additionalProperties": false,
-					"type": "object",
-					"description": "Worker's specific config properties"
-				},
 				"EffectiveGasPrice": {
 					"properties": {
 						"MaxBreakEvenGasPriceDeviationPercentage": {
@@ -713,34 +666,40 @@
 					"default": 1000
 				},
 				"SenderAddress": {
-					"type": "string",
-					"description": "SenderAddress defines which private key the eth tx manager needs to use\nto sign the L1 txs",
-					"default": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266"
-				},
-				"PrivateKeys": {
 					"items": {
-						"properties": {
-							"Path": {
-								"type": "string",
-								"description": "Path is the file path for the key store file"
-							},
-							"Password": {
-								"type": "string",
-								"description": "Password is the password to decrypt the key store file"
-							}
-						},
-						"additionalProperties": false,
-						"type": "object",
-						"description": "KeystoreFileConfig has all the information needed to load a private key from a key store file"
+						"type": "integer"
 					},
 					"type": "array",
-					"description": "PrivateKeys defines all the key store files that are going\nto be read in order to provide the private keys to sign the L1 txs",
-					"default": [
-						{
-							"Path": "/pk/sequencer.keystore",
-							"Password": "testonly"
+					"maxItems": 20,
+					"minItems": 20,
+					"description": "SenderAddress defines which private key the eth tx manager needs to use\nto sign the L1 txs"
+				},
+				"L2Coinbase": {
+					"items": {
+						"type": "integer"
+					},
+					"type": "array",
+					"maxItems": 20,
+					"minItems": 20,
+					"description": "L2Coinbase defines which addess is going to receive the fees",
+					"default": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266"
+				},
+				"PrivateKey": {
+					"properties": {
+						"Path": {
+							"type": "string",
+							"description": "Path is the file path for the key store file",
+							"default": "/pk/sequencer.keystore"
+						},
+						"Password": {
+							"type": "string",
+							"description": "Password is the password to decrypt the key store file",
+							"default": "testonly"
 						}
-					]
+					},
+					"additionalProperties": false,
+					"type": "object",
+					"description": "PrivateKey defines all the key store files that are going\nto be read in order to provide the private keys to sign the L1 txs"
 				},
 				"ForkUpgradeBatchNumber": {
 					"type": "integer",

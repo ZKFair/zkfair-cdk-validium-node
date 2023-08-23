@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"crypto/ecdsa"
 	"fmt"
 	"net"
 	"net/http"
@@ -35,8 +34,6 @@ import (
 	"github.com/0xPolygonHermez/zkevm-node/state"
 	"github.com/0xPolygonHermez/zkevm-node/state/runtime/executor"
 	"github.com/0xPolygonHermez/zkevm-node/synchronizer"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/urfave/cli/v2"
@@ -401,24 +398,17 @@ func createSequenceSender(cfg config.Config, pool *pool.Pool, etmStorage *ethtxm
 		log.Fatal(err)
 	}
 
-	var seqPrivKey *ecdsa.PrivateKey
-	for _, privateKey := range cfg.SequenceSender.PrivateKeys {
-		_, pk, err := etherman.LoadAuthFromKeyStore(privateKey.Path, privateKey.Password)
-		if err != nil {
-			log.Fatal(err)
-		}
-		log.Infof("from pk %s, from sender %s", crypto.PubkeyToAddress(pk.PublicKey), common.HexToAddress(cfg.SequenceSender.SenderAddress))
-		if crypto.PubkeyToAddress(pk.PublicKey) == common.HexToAddress(cfg.SequenceSender.SenderAddress) {
-			seqPrivKey = pk
-		}
+	auth, pk, err := etherman.LoadAuthFromKeyStore(cfg.SequenceSender.PrivateKey.Path, cfg.SequenceSender.PrivateKey.Password)
+	if err != nil {
+		log.Fatal(err)
 	}
-	if seqPrivKey == nil {
-		log.Fatal("Sequencer private key not found")
-	}
+	cfg.SequenceSender.SenderAddress = auth.From
+
+	cfg.SequenceSender.ForkUpgradeBatchNumber = cfg.ForkUpgradeBatchNumber
 
 	ethTxManager := ethtxmanager.New(cfg.EthTxManager, etherman, etmStorage, st)
 
-	seqSender, err := sequencesender.New(cfg.SequenceSender, st, etherman, ethTxManager, eventLog, seqPrivKey)
+	seqSender, err := sequencesender.New(cfg.SequenceSender, st, etherman, ethTxManager, eventLog, pk)
 	if err != nil {
 		log.Fatal(err)
 	}

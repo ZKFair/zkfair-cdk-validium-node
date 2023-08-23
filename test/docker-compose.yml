@@ -308,7 +308,7 @@ services:
 
   supernets2-mock-l1-network:
     container_name: supernets2-mock-l1-network
-    image: hermeznetwork/geth-supernets2-contracts:v0.0.1
+    image: hermeznetwork/geth-supernets2-contracts:v0.0.2
     ports:
       - 8545:8545
       - 8546:8546
@@ -328,6 +328,8 @@ services:
       - "--ws.addr"
       - "0.0.0.0"
       - "--dev"
+      - "--dev.period"
+      - "1"
       - "--datadir"
       - "/geth_data"
       - "--syncmode"
@@ -336,7 +338,7 @@ services:
 
   supernets2-prover:
     container_name: supernets2-prover
-    image: hermeznetwork/zkevm-prover:v2.0.1
+    image: hermeznetwork/zkevm-prover:v2.2.0-RC4
     ports:
       # - 50051:50051 # Prover
       - 50052:50052 # Mock prover
@@ -471,7 +473,7 @@ services:
 
   supernets2-permissionless-prover:
     container_name: supernets2-permissionless-prover
-    image: hermeznetwork/zkevm-prover:v2.0.1
+    image: hermeznetwork/zkevm-prover:v2.2.0-RC4
     ports:
       # - 50058:50058 # Prover
       - 50059:50052 # Mock prover
