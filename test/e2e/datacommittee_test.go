@@ -14,9 +14,6 @@ import (
 	"testing"
 	"time"
 
-	cTypes "github.com/0xPolygon/cdk-validium-node/config/types"
-	"github.com/0xPolygon/cdk-validium-node/db"
-	"github.com/0xPolygon/cdk-validium-node/jsonrpc"
 	"github.com/0xPolygon/supernets2-data-availability/config"
 	"github.com/0xPolygonHermez/zkevm-node/etherman/smartcontracts/cdkdatacommittee"
 	"github.com/0xPolygonHermez/zkevm-node/log"
@@ -109,30 +106,30 @@ func TestDataCommittee(t *testing.T) {
 
 	// Spin up M DAC nodes
 	dacNodeConfig := config.Config{
-		L1: config.L1Config{
-			WsURL:       "ws://cdk-validium-mock-l1-network:8546",
-			Contract:    "0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82",
-			Timeout:     cTypes.NewDuration(time.Minute * 3),
-			RetryPeriod: cTypes.NewDuration(time.Second * 5),
-		},
-		PrivateKey: cTypes.KeystoreFileConfig{
-			Path:     ksFile,
-			Password: ksPass,
-		},
-		DB: db.Config{
-			Name:      "committee_db",
-			User:      "committee_user",
-			Password:  "committee_password",
-			Host:      "cdk-validium-data-node-db",
-			Port:      "5432",
-			EnableLog: false,
-			MaxConns:  10,
-		},
-		RPC: jsonrpc.Config{
-			Host:                             "0.0.0.0",
-			EnableL2SuggestedGasPricePolling: false,
-			MaxRequestsPerIPAndSecond:        100,
-		},
+		// L1: config.L1Config{
+		// 	WsURL:    "ws://cdk-validium-mock-l1-network:8546",
+		// 	Contract: "0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82",
+		// 	// Timeout:     cTypes.NewDuration(time.Minute * 3),
+		// 	// RetryPeriod: cTypes.NewDuration(time.Second * 5),
+		// },
+		// PrivateKey: cTypes.KeystoreFileConfig{
+		// 	Path:     ksFile,
+		// 	Password: ksPass,
+		// },
+		// DB: db.Config{
+		// 	Name:      "committee_db",
+		// 	User:      "committee_user",
+		// 	Password:  "committee_password",
+		// 	Host:      "cdk-validium-data-node-db",
+		// 	Port:      "5432",
+		// 	EnableLog: false,
+		// 	MaxConns:  10,
+		// },
+		// RPC: jsonrpc.Config{
+		// 	Host:                             "0.0.0.0",
+		// 	EnableL2SuggestedGasPricePolling: false,
+		// 	MaxRequestsPerIPAndSecond:        100,
+		// },
 	}
 	defer func() {
 		// Remove tmp files

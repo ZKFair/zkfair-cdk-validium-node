@@ -7,7 +7,6 @@ import (
 	"sort"
 	"strings"
 
-	jTypes "github.com/0xPolygon/cdk-validium-node/jsonrpc/types"
 	"github.com/0xPolygon/supernets2-data-availability/batch"
 	"github.com/0xPolygon/supernets2-data-availability/client"
 	"github.com/0xPolygon/supernets2-data-availability/sequence"
@@ -47,11 +46,11 @@ func (s *SequenceSender) getSignaturesAndAddrsFromDataCommittee(ctx context.Cont
 	}
 	for _, seq := range sequences {
 		sequence.Batches = append(sequence.Batches, batch.Batch{
-			Number:         jTypes.ArgUint64(seq.BatchNumber),
+			// Number:         jTypes.ArgUint64(seq.BatchNumber),
 			GlobalExitRoot: seq.GlobalExitRoot,
-			Timestamp:      jTypes.ArgUint64(seq.Timestamp),
-			Coinbase:       s.cfg.L2Coinbase,
-			L2Data:         seq.BatchL2Data,
+			// Timestamp:      jTypes.ArgUint64(seq.Timestamp),
+			Coinbase: s.cfg.L2Coinbase,
+			L2Data:   seq.BatchL2Data,
 		})
 	}
 	signedSequence, err := sequence.Sign(s.privKey)
