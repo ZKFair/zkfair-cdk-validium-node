@@ -39,7 +39,7 @@ func TestDataCommittee(t *testing.T) {
 		ksFile           = "/tmp/pkey"
 		cfgFile          = "/tmp/dacnodeconfigfile.json"
 		ksPass           = "pass"
-		dacNodeContainer = "hermeznetwork/cdk-data-availability:bar"
+		dacNodeContainer = "hermeznetwork/cdk-data-availability:v0.0.1"
 	)
 
 	// Setup
@@ -184,6 +184,7 @@ func TestDataCommittee(t *testing.T) {
 		)
 		out, err := cmd.CombinedOutput()
 		require.NoError(t, err, string(out))
+		log.Infof("DAC node %d started", m.i)
 		time.Sleep(time.Second * 5)
 	}
 
