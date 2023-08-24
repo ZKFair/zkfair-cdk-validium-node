@@ -39,7 +39,7 @@ func TestDataCommittee(t *testing.T) {
 		ksFile           = "/tmp/pkey"
 		cfgFile          = "/tmp/dacnodeconfigfile.json"
 		ksPass           = "pass"
-		dacNodeContainer = "hermeznetwork/cdk-data-availability:v0.0.1"
+		dacNodeContainer = "hermeznetwork/cdk-data-availability:bar"
 	)
 
 	// Setup
@@ -110,6 +110,7 @@ func TestDataCommittee(t *testing.T) {
 	// Spin up M DAC nodes
 	dacNodeConfig := config.Config{
 		L1: config.L1Config{
+			RpcURL:               "http://cdk-validium-mock-l1-network:8545",
 			WsURL:                "ws://cdk-validium-mock-l1-network:8546",
 			CDKValidiumAddress:   operations.DefaultL1CDKValidiumSmartContract,
 			DataCommitteeAddress: operations.DefaultL1DataCommitteeContract,
