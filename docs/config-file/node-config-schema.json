@@ -1,6 +1,6 @@
 {
 	"$schema": "https://json-schema.org/draft/2020-12/schema",
-	"$id": "github.com/0xPolygonHermez/zkevm-node/config/config",
+	"$id": "github.com/0xPolygon/cdk-validium-node/config/config",
 	"properties": {
 		"IsTrustedSequencer": {
 			"type": "boolean",
@@ -9,7 +9,7 @@
 		},
 		"ForkUpgradeBatchNumber": {
 			"type": "integer",
-			"description": "Last batch number before  a forkid change (fork upgrade). That implies that\ngreater batch numbers are going to be trusted but no virtualized neither verified.\nSo after the batch number `ForkUpgradeBatchNumber` is virtualized and verified you could update\nthe system (SC,...) to new forkId and remove this value to allow the system to keep\nVirtualizing and verifying the new batchs.\nCheck issue [#2236](https://github.com/0xPolygonHermez/zkevm-node/issues/2236) to known more\nThis value overwrite `SequenceSender.ForkUpgradeBatchNumber`",
+			"description": "Last batch number before  a forkid change (fork upgrade). That implies that\ngreater batch numbers are going to be trusted but no virtualized neither verified.\nSo after the batch number `ForkUpgradeBatchNumber` is virtualized and verified you could update\nthe system (SC,...) to new forkId and remove this value to allow the system to keep\nVirtualizing and verifying the new batchs.\nCheck issue [#2236](https://github.com/0xPolygon/cdk-validium-node/issues/2236) to known more\nThis value overwrite `SequenceSender.ForkUpgradeBatchNumber`",
 			"default": 0
 		},
 		"ForkUpgradeNewForkId": {

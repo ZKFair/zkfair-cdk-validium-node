@@ -7,12 +7,12 @@ import (
 	"sort"
 	"strings"
 
+	ethman "github.com/0xPolygon/cdk-validium-node/etherman"
+	"github.com/0xPolygon/cdk-validium-node/etherman/types"
+	"github.com/0xPolygon/cdk-validium-node/log"
 	"github.com/0xPolygon/supernets2-data-availability/batch"
 	"github.com/0xPolygon/supernets2-data-availability/client"
 	"github.com/0xPolygon/supernets2-data-availability/sequence"
-	ethman "github.com/0xPolygonHermez/zkevm-node/etherman"
-	"github.com/0xPolygonHermez/zkevm-node/etherman/types"
-	"github.com/0xPolygonHermez/zkevm-node/log"
 	"github.com/ethereum/go-ethereum/common"
 )
 

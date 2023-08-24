@@ -14,10 +14,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/0xPolygon/cdk-validium-node/etherman/smartcontracts/cdkdatacommittee"
+	"github.com/0xPolygon/cdk-validium-node/log"
+	"github.com/0xPolygon/cdk-validium-node/test/operations"
 	"github.com/0xPolygon/supernets2-data-availability/config"
-	"github.com/0xPolygonHermez/zkevm-node/etherman/smartcontracts/cdkdatacommittee"
-	"github.com/0xPolygonHermez/zkevm-node/log"
-	"github.com/0xPolygonHermez/zkevm-node/test/operations"
 	"github.com/ethereum/go-ethereum"
 	eTypes "github.com/ethereum/go-ethereum/core/types"
 

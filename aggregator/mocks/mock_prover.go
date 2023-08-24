@@ -5,7 +5,7 @@ package mocks
 import (
 	context "context"
 
-	prover "github.com/0xPolygonHermez/zkevm-node/aggregator/prover"
+	prover "github.com/0xPolygon/cdk-validium-node/aggregator/prover"
 	mock "github.com/stretchr/testify/mock"
 )
 

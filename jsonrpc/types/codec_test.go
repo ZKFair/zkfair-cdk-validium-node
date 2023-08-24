@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/0xPolygonHermez/zkevm-node/jsonrpc/mocks"
+	"github.com/0xPolygon/cdk-validium-node/jsonrpc/mocks"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

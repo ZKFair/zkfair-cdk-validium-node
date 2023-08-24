@@ -1,7 +1,7 @@
 package sequencesender
 
 import (
-	"github.com/0xPolygonHermez/zkevm-node/config/types"
+	"github.com/0xPolygon/cdk-validium-node/config/types"
 	"github.com/ethereum/go-ethereum/common"
 )
 

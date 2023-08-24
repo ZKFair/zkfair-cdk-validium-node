@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/0xPolygonHermez/zkevm-node/encoding"
-	"github.com/0xPolygonHermez/zkevm-node/hex"
+	"github.com/0xPolygon/cdk-validium-node/encoding"
+	"github.com/0xPolygon/cdk-validium-node/hex"
 	"github.com/jackc/pgx/v4"
 )
 

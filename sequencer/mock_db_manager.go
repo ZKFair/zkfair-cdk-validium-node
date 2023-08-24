@@ -12,9 +12,9 @@ import (
 
 	pgx "github.com/jackc/pgx/v4"
 
-	pool "github.com/0xPolygonHermez/zkevm-node/pool"
+	pool "github.com/0xPolygon/cdk-validium-node/pool"
 
-	state "github.com/0xPolygonHermez/zkevm-node/state"
+	state "github.com/0xPolygon/cdk-validium-node/state"
 
 	time "time"
 

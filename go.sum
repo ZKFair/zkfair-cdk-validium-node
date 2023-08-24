@@ -46,6 +46,8 @@ github.com/0xPolygon/supernets2-data-availability v0.0.0-20230707114052-4ace9ee1
 github.com/0xPolygon/supernets2-data-availability v0.0.0-20230707114052-4ace9ee1f2e3/go.mod h1:R3nvxQPvBFPFEQ6+wDSUiWiOya797V8lpXmQhjOmKfI=
 github.com/0xPolygon/supernets2-node v0.0.0-20230707112214-f7e23fc2f1c4 h1:8Fhvhj5+dW1rCe24wtdtB6vy5MOM2OlsEVzuQ93kEto=
 github.com/0xPolygon/supernets2-node v0.0.0-20230707112214-f7e23fc2f1c4/go.mod h1:Xf5M+JgXqh70Bq/SZqY9bJNX2tWqvohSmQSg4byAVa4=
+github.com/0xPolygonHermez/zkevm-node v0.1.0-RC8.0.20230601153103-86d9fb808691 h1:PTbLJ6HEQ9J0CzKrv62n/l4GsGYygyAVX4kRAWY530Q=
+github.com/0xPolygonHermez/zkevm-node v0.1.0-RC8.0.20230601153103-86d9fb808691/go.mod h1:6/9FEzpZVSQJaRY5iAJpwIanokNQWkbl1yUP5mUbShA=
 github.com/AndreasBriese/bbloom v0.0.0-20190306092124-e2d15f34fcf9/go.mod h1:bOvUY6CB00SOBii9/FifXqc0awNKxLFCL/+pkDPuyl8=
 github.com/Azure/go-ansiterm v0.0.0-20170929234023-d6e3b3328b78 h1:w+iIsaOQNcT7OZ575w+acHgRric5iCyQh+xv+KJ4HB8=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=

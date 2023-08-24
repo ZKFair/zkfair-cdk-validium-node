@@ -1,6 +1,6 @@
 {
 	"$schema": "https://json-schema.org/draft/2020-12/schema",
-	"$id": "github.com/0xPolygonHermez/zkevm-node/config/config",
+	"$id": "github.com/0xPolygon/cdk-validium-node/config/config",
 	"properties": {
 		"root": {
 			"type": "string",

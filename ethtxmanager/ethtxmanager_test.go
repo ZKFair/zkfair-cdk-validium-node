@@ -8,9 +8,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/0xPolygonHermez/zkevm-node/config/types"
-	"github.com/0xPolygonHermez/zkevm-node/state"
-	"github.com/0xPolygonHermez/zkevm-node/test/dbutils"
+	"github.com/0xPolygon/cdk-validium-node/config/types"
+	"github.com/0xPolygon/cdk-validium-node/state"
+	"github.com/0xPolygon/cdk-validium-node/test/dbutils"
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
 	ethTypes "github.com/ethereum/go-ethereum/core/types"

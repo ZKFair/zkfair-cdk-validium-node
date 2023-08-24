@@ -3,7 +3,7 @@ package etherman
 import (
 	"time"
 
-	"github.com/0xPolygonHermez/zkevm-node/etherman/smartcontracts/cdkvalidium"
+	"github.com/0xPolygon/cdk-validium-node/etherman/smartcontracts/cdkvalidium"
 	"github.com/ethereum/go-ethereum/common"
 )
 

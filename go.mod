@@ -152,5 +152,3 @@ require (
 	github.com/golang/protobuf v1.5.3
 	github.com/prometheus/client_golang v1.16.0
 )
-
-replace github.com/0xPolygonHermez/zkevm-node => ./

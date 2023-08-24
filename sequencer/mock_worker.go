@@ -10,7 +10,7 @@ import (
 
 	mock "github.com/stretchr/testify/mock"
 
-	state "github.com/0xPolygonHermez/zkevm-node/state"
+	state "github.com/0xPolygon/cdk-validium-node/state"
 
 	types "github.com/ethereum/go-ethereum/core/types"
 )

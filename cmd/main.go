@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/0xPolygonHermez/zkevm-node"
-	"github.com/0xPolygonHermez/zkevm-node/config"
-	"github.com/0xPolygonHermez/zkevm-node/jsonrpc"
-	"github.com/0xPolygonHermez/zkevm-node/log"
+	node "github.com/0xPolygon/cdk-validium-node"
+	"github.com/0xPolygon/cdk-validium-node/config"
+	"github.com/0xPolygon/cdk-validium-node/jsonrpc"
+	"github.com/0xPolygon/cdk-validium-node/log"
 	"github.com/urfave/cli/v2"
 )
 
@@ -97,7 +97,7 @@ var (
 func main() {
 	app := cli.NewApp()
 	app.Name = appName
-	app.Version = zkevm.Version
+	app.Version = node.Version
 	flags := []cli.Flag{
 		&configFileFlag,
 		&yesFlag,

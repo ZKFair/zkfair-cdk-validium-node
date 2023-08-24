@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/0xPolygonHermez/zkevm-node/log"
-	"github.com/0xPolygonHermez/zkevm-node/merkletree/hashdb"
+	"github.com/0xPolygon/cdk-validium-node/log"
+	"github.com/0xPolygon/cdk-validium-node/merkletree/hashdb"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )

@@ -6,12 +6,12 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/0xPolygonHermez/zkevm-node/event"
-	"github.com/0xPolygonHermez/zkevm-node/log"
-	"github.com/0xPolygonHermez/zkevm-node/pool"
-	"github.com/0xPolygonHermez/zkevm-node/sequencer/metrics"
-	"github.com/0xPolygonHermez/zkevm-node/state"
-	stateMetrics "github.com/0xPolygonHermez/zkevm-node/state/metrics"
+	"github.com/0xPolygon/cdk-validium-node/event"
+	"github.com/0xPolygon/cdk-validium-node/log"
+	"github.com/0xPolygon/cdk-validium-node/pool"
+	"github.com/0xPolygon/cdk-validium-node/sequencer/metrics"
+	"github.com/0xPolygon/cdk-validium-node/state"
+	stateMetrics "github.com/0xPolygon/cdk-validium-node/state/metrics"
 	"github.com/ethereum/go-ethereum/common"
 )
 

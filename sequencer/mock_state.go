@@ -8,15 +8,15 @@ import (
 
 	common "github.com/ethereum/go-ethereum/common"
 
-	executor "github.com/0xPolygonHermez/zkevm-node/state/runtime/executor"
+	executor "github.com/0xPolygon/cdk-validium-node/state/runtime/executor"
 
-	metrics "github.com/0xPolygonHermez/zkevm-node/state/metrics"
+	metrics "github.com/0xPolygon/cdk-validium-node/state/metrics"
 
 	mock "github.com/stretchr/testify/mock"
 
 	pgx "github.com/jackc/pgx/v4"
 
-	state "github.com/0xPolygonHermez/zkevm-node/state"
+	state "github.com/0xPolygon/cdk-validium-node/state"
 
 	time "time"
 
