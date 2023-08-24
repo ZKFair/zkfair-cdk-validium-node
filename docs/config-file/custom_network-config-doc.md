@@ -93,10 +93,10 @@ must respect the following conditions
 | Property                                                                            | Pattern | Type             | Deprecated | Definition | Title/Description                                   |
 | ----------------------------------------------------------------------------------- | ------- | ---------------- | ---------- | ---------- | --------------------------------------------------- |
 | - [chainId](#L1Config_chainId )                                                     | No      | integer          | No         | -          | Chain ID of the L1 network                          |
-| - [cdkValidiumAddress](#L1Config_cdkValidiumAddress )                                 | No      | array of integer | No         | -          | Address of the L1 contract                          |
+| - [cdkValidiumAddress](#L1Config_cdkValidiumAddress )                               | No      | array of integer | No         | -          | Address of the L1 contract                          |
 | - [maticTokenAddress](#L1Config_maticTokenAddress )                                 | No      | array of integer | No         | -          | Address of the L1 Matic token Contract              |
 | - [polygonZkEVMGlobalExitRootAddress](#L1Config_polygonZkEVMGlobalExitRootAddress ) | No      | array of integer | No         | -          | Address of the L1 GlobalExitRootManager contract    |
-| - [cdkDataCommitteeContract](#L1Config_cdkDataCommitteeContract )     | No      | array of integer | No         | -          | Address of the data availability committee contract |
+| - [cdkDataCommitteeContract](#L1Config_cdkDataCommitteeContract )                   | No      | array of integer | No         | -          | Address of the data availability committee contract |
 
 ### <a name="L1Config_chainId"></a>4.1. `L1Config.chainId`
 
