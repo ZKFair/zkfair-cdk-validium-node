@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 
-	"github.com/0xPolygon/supernets2-node/state/runtime/instrumentation"
+	"github.com/0xPolygon/cdk-validium-node/state/runtime/instrumentation"
 	"github.com/ethereum/go-ethereum/common"
 )
 

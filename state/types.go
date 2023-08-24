@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/0xPolygon/supernets2-node/state/runtime/instrumentation"
+	"github.com/0xPolygon/cdk-validium-node/state/runtime/instrumentation"
 	"github.com/0xPolygonHermez/zkevm-node/state/metrics"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"

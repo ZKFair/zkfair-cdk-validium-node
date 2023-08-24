@@ -22,7 +22,7 @@ import (
 	"math/big"
 	"sync/atomic"
 
-	"github.com/0xPolygon/supernets2-node/state/runtime/instrumentation/tracers"
+	"github.com/0xPolygon/cdk-validium-node/state/runtime/instrumentation/tracers"
 	"github.com/0xPolygonHermez/zkevm-node/state/runtime/fakevm"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"

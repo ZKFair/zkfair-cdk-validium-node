@@ -128,7 +128,7 @@ func TestGenerateJsonSchemaCommentsWithDurationItem(t *testing.T) {
 	duration, err := time.ParseDuration("1m")
 	require.NoError(t, err)
 	generator := ConfigJsonSchemaGenerater[ConfigWithDurationAndAComplexArray]{
-		repoName:                "github.com/0xPolygon/supernets2-node/config/",
+		repoName:                "github.com/0xPolygon/cdk-validium-node/config/",
 		cleanRequiredField:      true,
 		addCodeCommentsToSchema: true,
 		pathSourceCode:          "./",
@@ -150,7 +150,7 @@ func TestGenerateJsonSchemaCommentsWithComplexArrays(t *testing.T) {
 	cli := cli.NewContext(nil, nil, nil)
 	PrivateKeys := []KeystoreFileConfigExample{{Path: "/pk/sequencer.keystore", Password: "testonly"}}
 	generator := ConfigJsonSchemaGenerater[ConfigWithDurationAndAComplexArray]{
-		repoName:                "github.com/0xPolygon/supernets2-node/config/",
+		repoName:                "github.com/0xPolygon/cdk-validium-node/config/",
 		cleanRequiredField:      true,
 		addCodeCommentsToSchema: true,
 		pathSourceCode:          "./",
@@ -180,7 +180,7 @@ func TestGenerateJsonSchemaCommentsWithComplexArrays(t *testing.T) {
 func TestGenerateJsonSchemaCommentsWithArrays(t *testing.T) {
 	cli := cli.NewContext(nil, nil, nil)
 	generator := ConfigJsonSchemaGenerater[ExapmleTestWithSimpleArrays]{
-		repoName:                "github.com/0xPolygon/supernets2-node/config/",
+		repoName:                "github.com/0xPolygon/cdk-validium-node/config/",
 		cleanRequiredField:      true,
 		addCodeCommentsToSchema: true,
 		pathSourceCode:          "./",
@@ -202,7 +202,7 @@ func TestGenerateJsonSchemaCommentsWithArrays(t *testing.T) {
 func TestGenerateJsonSchemaCommentsWithMultiplesLines(t *testing.T) {
 	cli := cli.NewContext(nil, nil, nil)
 	generator := ConfigJsonSchemaGenerater[MyTestConfig]{
-		repoName:                "github.com/0xPolygon/supernets2-node/config/",
+		repoName:                "github.com/0xPolygon/cdk-validium-node/config/",
 		cleanRequiredField:      true,
 		addCodeCommentsToSchema: true,
 		pathSourceCode:          "./",

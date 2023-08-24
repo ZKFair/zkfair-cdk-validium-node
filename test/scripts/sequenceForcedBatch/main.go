@@ -4,7 +4,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/0xPolygonHermez/zkevm-node/etherman/smartcontracts/supernets2"
+	"github.com/0xPolygonHermez/zkevm-node/etherman/smartcontracts/cdkvalidium"
 	"github.com/0xPolygonHermez/zkevm-node/hex"
 	"github.com/0xPolygonHermez/zkevm-node/log"
 	"github.com/0xPolygonHermez/zkevm-node/test/operations"
@@ -99,7 +99,7 @@ func sendForcedBatches(cliCtx *cli.Context) error {
 	}
 	// Create smc client
 	poeAddr := common.HexToAddress(cliCtx.String(flagSmcAddrName))
-	poe, err := supernets2.NewSupernets2(poeAddr, ethClient)
+	poe, err := cdkvalidium.NewCdkvalidium(poeAddr, ethClient)
 	if err != nil {
 		return err
 	}
@@ -130,7 +130,7 @@ func sendForcedBatches(cliCtx *cli.Context) error {
 		log.Error("error decoding txs. Error: ", err)
 		return err
 	}
-	fbData := []supernets2.Supernets2ForcedBatchData{{
+	fbData := []cdkvalidium.CDKValidiumForcedBatchData{{
 		Transactions:       transactions,
 		GlobalExitRoot:     common.HexToHash(cliCtx.String(flagGerName)),
 		MinForcedTimestamp: cliCtx.Uint64(flagTimestampName),

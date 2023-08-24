@@ -11,7 +11,7 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-const appName = "supernets2-node"
+const appName = "cdk-validium-node"
 
 const (
 	// AGGREGATOR is the aggregator component identifier
@@ -114,7 +114,7 @@ func main() {
 		{
 			Name:    "run",
 			Aliases: []string{},
-			Usage:   "Run the supernets2-node",
+			Usage:   "Run the cdk-validium-node",
 			Action:  start,
 			Flags:   append(flags, &networkFlag, &customNetworkFlag, &migrationsFlag),
 		},

@@ -552,14 +552,14 @@ Password="pool_password"
 
 **Type:** : `string`
 
-**Default:** `"supernets2-pool-db"`
+**Default:** `"cdk-validium-pool-db"`
 
 **Description:** Host address of database
 
-**Example setting the default value** ("supernets2-pool-db"):
+**Example setting the default value** ("cdk-validium-pool-db"):
 ```
 [Pool.DB]
-Host="supernets2-pool-db"
+Host="cdk-validium-pool-db"
 ```
 
 #### <a name="Pool_DB_Port"></a>7.5.5. `Pool.DB.Port`
@@ -2125,10 +2125,10 @@ GeneratingProofCleanupThreshold="10m"
 | Property                                                                                          | Pattern | Type             | Deprecated | Definition | Title/Description                                   |
 | ------------------------------------------------------------------------------------------------- | ------- | ---------------- | ---------- | ---------- | --------------------------------------------------- |
 | - [chainId](#NetworkConfig_l1Config_chainId )                                                     | No      | integer          | No         | -          | Chain ID of the L1 network                          |
-| - [supernets2Address](#NetworkConfig_l1Config_supernets2Address )                                 | No      | array of integer | No         | -          | Address of the L1 contract                          |
+| - [cdkValidiumAddress](#NetworkConfig_l1Config_cdkValidiumAddress )                                 | No      | array of integer | No         | -          | Address of the L1 contract                          |
 | - [maticTokenAddress](#NetworkConfig_l1Config_maticTokenAddress )                                 | No      | array of integer | No         | -          | Address of the L1 Matic token Contract              |
 | - [polygonZkEVMGlobalExitRootAddress](#NetworkConfig_l1Config_polygonZkEVMGlobalExitRootAddress ) | No      | array of integer | No         | -          | Address of the L1 GlobalExitRootManager contract    |
-| - [supernets2DataCommitteeContract](#NetworkConfig_l1Config_supernets2DataCommitteeContract )     | No      | array of integer | No         | -          | Address of the data availability committee contract |
+| - [cdkDataCommitteeContract](#NetworkConfig_l1Config_cdkDataCommitteeContract )     | No      | array of integer | No         | -          | Address of the data availability committee contract |
 
 #### <a name="NetworkConfig_l1Config_chainId"></a>13.1.1. `NetworkConfig.l1Config.chainId`
 
@@ -2144,7 +2144,7 @@ GeneratingProofCleanupThreshold="10m"
 chainId=0
 ```
 
-#### <a name="NetworkConfig_l1Config_supernets2Address"></a>13.1.2. `NetworkConfig.l1Config.supernets2Address`
+#### <a name="NetworkConfig_l1Config_cdkValidiumAddress"></a>13.1.2. `NetworkConfig.l1Config.cdkValidiumAddress`
 
 **Type:** : `array of integer`
 **Description:** Address of the L1 contract
@@ -2159,7 +2159,7 @@ chainId=0
 **Type:** : `array of integer`
 **Description:** Address of the L1 GlobalExitRootManager contract
 
-#### <a name="NetworkConfig_l1Config_supernets2DataCommitteeContract"></a>13.1.5. `NetworkConfig.l1Config.supernets2DataCommitteeContract`
+#### <a name="NetworkConfig_l1Config_cdkDataCommitteeContract"></a>13.1.5. `NetworkConfig.l1Config.cdkDataCommitteeContract`
 
 **Type:** : `array of integer`
 **Description:** Address of the data availability committee contract
@@ -2455,12 +2455,12 @@ Factor=0.15
 
 **Type:** : `string`
 
-**Default:** `"supernets2-prover:50071"`
+**Default:** `"cdk-validium-prover:50071"`
 
-**Example setting the default value** ("supernets2-prover:50071"):
+**Example setting the default value** ("cdk-validium-prover:50071"):
 ```
 [Executor]
-URI="supernets2-prover:50071"
+URI="cdk-validium-prover:50071"
 ```
 
 ### <a name="Executor_MaxResourceExhaustedAttempts"></a>15.2. `Executor.MaxResourceExhaustedAttempts`
@@ -2528,14 +2528,14 @@ MaxGRPCMessageSize=100000000
 
 **Type:** : `string`
 
-**Default:** `"supernets2-prover:50061"`
+**Default:** `"cdk-validium-prover:50061"`
 
 **Description:** URI is the server URI.
 
-**Example setting the default value** ("supernets2-prover:50061"):
+**Example setting the default value** ("cdk-validium-prover:50061"):
 ```
 [MTClient]
-URI="supernets2-prover:50061"
+URI="cdk-validium-prover:50061"
 ```
 
 ## <a name="StateDB"></a>17. `[StateDB]`
@@ -2599,14 +2599,14 @@ Password="state_password"
 
 **Type:** : `string`
 
-**Default:** `"supernets2-state-db"`
+**Default:** `"cdk-validium-state-db"`
 
 **Description:** Host address of database
 
-**Example setting the default value** ("supernets2-state-db"):
+**Example setting the default value** ("cdk-validium-state-db"):
 ```
 [StateDB]
-Host="supernets2-state-db"
+Host="cdk-validium-state-db"
 ```
 
 ### <a name="StateDB_Port"></a>17.5. `StateDB.Port`
@@ -2932,14 +2932,14 @@ Password="prover_pass"
 
 **Type:** : `string`
 
-**Default:** `"supernets2-state-db"`
+**Default:** `"cdk-validium-state-db"`
 
 **Description:** Host address of database
 
-**Example setting the default value** ("supernets2-state-db"):
+**Example setting the default value** ("cdk-validium-state-db"):
 ```
 [HashDB]
-Host="supernets2-state-db"
+Host="cdk-validium-state-db"
 ```
 
 ### <a name="HashDB_Port"></a>20.5. `HashDB.Port`

@@ -1,27 +1,27 @@
 DOCKERCOMPOSE := docker-compose -f docker-compose.yml
-DOCKERCOMPOSEAPPSEQ := supernets2-sequencer
-DOCKERCOMPOSEAPPSEQSENDER := supernets2-sequence-sender
-DOCKERCOMPOSEAPPL2GASP := supernets2-l2gaspricer
-DOCKERCOMPOSEAPPAGG := supernets2-aggregator
-DOCKERCOMPOSEAPPRPC := supernets2-json-rpc
-DOCKERCOMPOSEAPPSYNC := supernets2-sync
-DOCKERCOMPOSEAPPETHTXMANAGER := supernets2-eth-tx-manager
-DOCKERCOMPOSESTATEDB := supernets2-state-db
-DOCKERCOMPOSEPOOLDB := supernets2-pool-db
-DOCKERCOMPOSEEVENTDB := supernets2-event-db
-DOCKERCOMPOSENETWORK := supernets2-mock-l1-network
-DOCKERCOMPOSEEXPLORERL1 := supernets2-explorer-l1
-DOCKERCOMPOSEEXPLORERL1DB := supernets2-explorer-l1-db
-DOCKERCOMPOSEEXPLORERL2 := supernets2-explorer-l2
-DOCKERCOMPOSEEXPLORERL2DB := supernets2-explorer-l2-db
-DOCKERCOMPOSEEXPLORERRPC := supernets2-explorer-json-rpc
-DOCKERCOMPOSEZKPROVER := supernets2-prover
-DOCKERCOMPOSEPERMISSIONLESSDB := supernets2-permissionless-db
-DOCKERCOMPOSEPERMISSIONLESSNODE := supernets2-permissionless-node
-DOCKERCOMPOSEPERMISSIONLESSNODEDAC := supernets2-permissionless-node-forced-DAC
-DOCKERCOMPOSEPERMISSIONLESSZKPROVER := supernets2-permissionless-prover
-DOCKERCOMPOSENODEAPPROVE := supernets2-approve
-DOCKERCOMPOSEMETRICS := supernets2-metrics
+DOCKERCOMPOSEAPPSEQ := cdk-validium-sequencer
+DOCKERCOMPOSEAPPSEQSENDER := cdk-validium-sequence-sender
+DOCKERCOMPOSEAPPL2GASP := cdk-validium-l2gaspricer
+DOCKERCOMPOSEAPPAGG := cdk-validium-aggregator
+DOCKERCOMPOSEAPPRPC := cdk-validium-json-rpc
+DOCKERCOMPOSEAPPSYNC := cdk-validium-sync
+DOCKERCOMPOSEAPPETHTXMANAGER := cdk-validium-eth-tx-manager
+DOCKERCOMPOSESTATEDB := cdk-validium-state-db
+DOCKERCOMPOSEPOOLDB := cdk-validium-pool-db
+DOCKERCOMPOSEEVENTDB := cdk-validium-event-db
+DOCKERCOMPOSENETWORK := cdk-validium-mock-l1-network
+DOCKERCOMPOSEEXPLORERL1 := cdk-validium-explorer-l1
+DOCKERCOMPOSEEXPLORERL1DB := cdk-validium-explorer-l1-db
+DOCKERCOMPOSEEXPLORERL2 := cdk-validium-explorer-l2
+DOCKERCOMPOSEEXPLORERL2DB := cdk-validium-explorer-l2-db
+DOCKERCOMPOSEEXPLORERRPC := cdk-validium-explorer-json-rpc
+DOCKERCOMPOSEZKPROVER := cdk-validium-prover
+DOCKERCOMPOSEPERMISSIONLESSDB := cdk-validium-permissionless-db
+DOCKERCOMPOSEPERMISSIONLESSNODE := cdk-validium-permissionless-node
+DOCKERCOMPOSEPERMISSIONLESSNODEDAC := cdk-validium-permissionless-node-forced-DAC
+DOCKERCOMPOSEPERMISSIONLESSZKPROVER := cdk-validium-permissionless-prover
+DOCKERCOMPOSENODEAPPROVE := cdk-validium-approve
+DOCKERCOMPOSEMETRICS := cdk-validium-metrics
 DOCKERCOMPOSEGRAFANA := grafana
 
 RUNSTATEDB := $(DOCKERCOMPOSE) up -d $(DOCKERCOMPOSESTATEDB)
@@ -80,8 +80,8 @@ STOPPERMISSIONLESSNODE := $(DOCKERCOMPOSE) stop $(DOCKERCOMPOSEPERMISSIONLESSNOD
 STOPPERMISSIONLESSNODEDAC := $(DOCKERCOMPOSE) stop $(DOCKERCOMPOSEPERMISSIONLESSNODEDAC) && $(DOCKERCOMPOSE) rm -f $(DOCKERCOMPOSEPERMISSIONLESSNODEDAC)
 STOPPERMISSIONLESSZKPROVER := $(DOCKERCOMPOSE) stop $(DOCKERCOMPOSEPERMISSIONLESSZKPROVER) && $(DOCKERCOMPOSE) rm -f $(DOCKERCOMPOSEPERMISSIONLESSZKPROVER)
 
-RUNDACDB := docker-compose up -d supernets2-data-node-db
-STOPDACDB := docker-compose stop supernets2-data-node-db && docker-compose rm -f supernets2-data-node-db
+RUNDACDB := docker-compose up -d cdk-validium-data-node-db
+STOPDACDB := docker-compose stop cdk-validium-data-node-db && docker-compose rm -f cdk-validium-data-node-db
 
 STOPAPPROVE := $(DOCKERCOMPOSE) stop $(DOCKERCOMPOSENODEAPPROVE) && $(DOCKERCOMPOSE) rm -f $(DOCKERCOMPOSENODEAPPROVE)
 
@@ -227,8 +227,8 @@ test-e2e-group-11: stop ## Runs group 11 e2e tests checking race conditions
 	trap '$(STOP)' EXIT; MallocNanoZone=0 go test -count=1 -race -v -p 1 -timeout 2000s ../ci/e2e-group11/...
 
 
-.PHONY: test-e2e-group-supernets2-1
-test-e2e-group-supernets2-1: stop ## Runs supernets2-1 e2e tests checking race conditions
+.PHONY: test-e2e-group-cdk-validium-1
+test-e2e-group-cdk-validium-1: stop ## Runs cdk-validium-1 e2e tests checking race conditions
 	$(RUNSTATEDB)
 	$(RUNPOOLDB)
 	$(RUNEVENTDB)
@@ -236,7 +236,7 @@ test-e2e-group-supernets2-1: stop ## Runs supernets2-1 e2e tests checking race c
 	$(RUNZKPROVER)
 	docker ps -a
 	docker logs $(DOCKERCOMPOSEZKPROVER)
-	trap '$(STOP)' EXIT; MallocNanoZone=0 go test -count=1 -race -v -p 1 -timeout 2000s ../ci/e2e-group-supernets2-1/...
+	trap '$(STOP)' EXIT; MallocNanoZone=0 go test -count=1 -race -v -p 1 -timeout 2000s ../ci/e2e-group-cdk-validium-1/...
 
 .PHONY: benchmark-sequencer-eth-transfers
 benchmark-sequencer-eth-transfers: stop

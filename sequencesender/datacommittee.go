@@ -7,10 +7,10 @@ import (
 	"sort"
 	"strings"
 
+	jTypes "github.com/0xPolygon/cdk-validium-node/jsonrpc/types"
 	"github.com/0xPolygon/supernets2-data-availability/batch"
 	"github.com/0xPolygon/supernets2-data-availability/client"
 	"github.com/0xPolygon/supernets2-data-availability/sequence"
-	jTypes "github.com/0xPolygon/supernets2-node/jsonrpc/types"
 	ethman "github.com/0xPolygonHermez/zkevm-node/etherman"
 	"github.com/0xPolygonHermez/zkevm-node/etherman/types"
 	"github.com/0xPolygonHermez/zkevm-node/log"

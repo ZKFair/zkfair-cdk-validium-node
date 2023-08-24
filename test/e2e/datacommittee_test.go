@@ -14,11 +14,11 @@ import (
 	"testing"
 	"time"
 
+	cTypes "github.com/0xPolygon/cdk-validium-node/config/types"
+	"github.com/0xPolygon/cdk-validium-node/db"
+	"github.com/0xPolygon/cdk-validium-node/jsonrpc"
 	"github.com/0xPolygon/supernets2-data-availability/config"
-	cTypes "github.com/0xPolygon/supernets2-node/config/types"
-	"github.com/0xPolygon/supernets2-node/db"
-	"github.com/0xPolygon/supernets2-node/jsonrpc"
-	"github.com/0xPolygonHermez/zkevm-node/etherman/smartcontracts/supernets2datacommittee"
+	"github.com/0xPolygonHermez/zkevm-node/etherman/smartcontracts/cdkdatacommittee"
 	"github.com/0xPolygonHermez/zkevm-node/log"
 	"github.com/0xPolygonHermez/zkevm-node/test/operations"
 	"github.com/ethereum/go-ethereum"
@@ -72,7 +72,7 @@ func TestDataCommittee(t *testing.T) {
 	require.NoError(t, err)
 	clientL1, err := ethclient.Dial(operations.DefaultL1NetworkURL)
 	require.NoError(t, err)
-	dacSC, err := supernets2datacommittee.NewSupernets2datacommittee(
+	dacSC, err := cdkdatacommittee.NewCdkdatacommittee(
 		common.HexToAddress(operations.DefaultL1DataCommitteeContract),
 		clientL1,
 	)
@@ -110,7 +110,7 @@ func TestDataCommittee(t *testing.T) {
 	// Spin up M DAC nodes
 	dacNodeConfig := config.Config{
 		L1: config.L1Config{
-			WsURL:       "ws://supernets2-mock-l1-network:8546",
+			WsURL:       "ws://cdk-validium-mock-l1-network:8546",
 			Contract:    "0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82",
 			Timeout:     cTypes.NewDuration(time.Minute * 3),
 			RetryPeriod: cTypes.NewDuration(time.Second * 5),
@@ -123,7 +123,7 @@ func TestDataCommittee(t *testing.T) {
 			Name:      "committee_db",
 			User:      "committee_user",
 			Password:  "committee_password",
-			Host:      "supernets2-data-node-db",
+			Host:      "cdk-validium-data-node-db",
 			Port:      "5432",
 			EnableLog: false,
 			MaxConns:  10,
@@ -177,7 +177,7 @@ func TestDataCommittee(t *testing.T) {
 			"--name", "supernets2-data-availability-"+strconv.Itoa(m.i),
 			"-v", cfgFile+":/app/config.json",
 			"-v", ksFile+":"+ksFile,
-			"--network", "supernets2",
+			"--network", "cdk-validium",
 			dacNodeContainer,
 			"/bin/sh", "-c",
 			"/app/supernets2-data-availability run --cfg /app/config.json",

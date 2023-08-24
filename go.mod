@@ -1,4 +1,4 @@
-module github.com/0xPolygon/supernets2-node
+module github.com/0xPolygon/cdk-validium-node
 
 go 1.19
 
@@ -37,6 +37,7 @@ require (
 
 require (
 	dario.cat/mergo v1.0.0 // indirect
+	github.com/0xPolygon/supernets2-node v0.0.0-20230707112214-f7e23fc2f1c4 // indirect
 	github.com/DataDog/zstd v1.5.2 // indirect
 	github.com/Microsoft/go-winio v0.6.1 // indirect
 	github.com/ProtonMail/go-crypto v0.0.0-20230717121422-5aa5874ade95 // indirect
@@ -147,7 +148,7 @@ require (
 
 require (
 	github.com/0xPolygon/supernets2-data-availability v0.0.0-20230707114052-4ace9ee1f2e3
-	github.com/0xPolygonHermez/zkevm-node v0.0.0-00010101000000-000000000000
+	github.com/0xPolygonHermez/zkevm-node v0.1.0-RC8.0.20230601153103-86d9fb808691
 	github.com/golang/protobuf v1.5.3
 	github.com/prometheus/client_golang v1.16.0
 )

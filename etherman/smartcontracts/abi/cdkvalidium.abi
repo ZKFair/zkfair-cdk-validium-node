@@ -22,7 +22,7 @@
           "type": "address"
         },
         {
-          "internalType": "contract ISupernets2DataCommittee",
+          "internalType": "contract ICDKDataCommittee",
           "name": "_dataCommitteeAddress",
           "type": "address"
         },
@@ -583,7 +583,7 @@
           "type": "string"
         }
       ],
-      "name": "UpdateSupernets2Version",
+      "name": "UpdateZkEVMVersion",
       "type": "event"
     },
     {
@@ -784,7 +784,7 @@
       "name": "dataCommitteeAddress",
       "outputs": [
         {
-          "internalType": "contract ISupernets2DataCommittee",
+          "internalType": "contract ICDKDataCommittee",
           "name": "",
           "type": "address"
         }
@@ -970,7 +970,7 @@
               "type": "uint64"
             }
           ],
-          "internalType": "struct Supernets2.InitializePackedParameters",
+          "internalType": "struct CDKValidium.InitializePackedParameters",
           "name": "initializePackedParameters",
           "type": "tuple"
         },
@@ -1379,7 +1379,7 @@
               "type": "uint64"
             }
           ],
-          "internalType": "struct Supernets2.BatchData[]",
+          "internalType": "struct CDKValidium.BatchData[]",
           "name": "batches",
           "type": "tuple[]"
         },
@@ -1419,7 +1419,7 @@
               "type": "uint64"
             }
           ],
-          "internalType": "struct Supernets2.ForcedBatchData[]",
+          "internalType": "struct CDKValidium.ForcedBatchData[]",
           "name": "batches",
           "type": "tuple[]"
         }

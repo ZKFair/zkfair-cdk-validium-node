@@ -4,7 +4,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/0xPolygonHermez/zkevm-node/etherman/smartcontracts/supernets2"
+	"github.com/0xPolygonHermez/zkevm-node/etherman/smartcontracts/cdkvalidium"
 	"github.com/0xPolygonHermez/zkevm-node/log"
 	"github.com/0xPolygonHermez/zkevm-node/test/operations"
 	"github.com/ethereum/go-ethereum"
@@ -78,7 +78,7 @@ func sendForcedBatches(cliCtx *cli.Context) error {
 	}
 	// Create smc client
 	poeAddr := common.HexToAddress(cliCtx.String(flagSmcAddrName))
-	poe, err := supernets2.NewSupernets2(poeAddr, ethClient)
+	poe, err := cdkvalidium.NewCdkvalidium(poeAddr, ethClient)
 	if err != nil {
 		return err
 	}

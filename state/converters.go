@@ -6,7 +6,7 @@ import (
 	"math/big"
 	"time"
 
-	"github.com/0xPolygon/supernets2-node/state/runtime/instrumentation"
+	"github.com/0xPolygon/cdk-validium-node/state/runtime/instrumentation"
 	"github.com/0xPolygonHermez/zkevm-node/encoding"
 	"github.com/0xPolygonHermez/zkevm-node/event"
 	"github.com/0xPolygonHermez/zkevm-node/hex"

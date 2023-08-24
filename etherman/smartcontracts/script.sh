@@ -8,9 +8,9 @@ gen() {
     abigen --bin bin/${package}.bin --abi abi/${package}.abi --pkg=${package} --out=${package}/${package}.go
 }
 
-gen supernets2
+gen cdkvalidium
 gen polygonzkevmbridge
 gen matic
 gen mockverifier
 gen polygonzkevmglobalexitroot
-gen supernets2datacommittee
+gen cdkdatacommittee

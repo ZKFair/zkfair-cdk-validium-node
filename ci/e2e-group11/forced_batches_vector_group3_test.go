@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/0xPolygonHermez/zkevm-node/etherman/smartcontracts/supernets2"
+	"github.com/0xPolygonHermez/zkevm-node/etherman/smartcontracts/cdkvalidium"
 	"github.com/0xPolygonHermez/zkevm-node/hex"
 	"github.com/0xPolygonHermez/zkevm-node/log"
 	"github.com/0xPolygonHermez/zkevm-node/state"
@@ -144,8 +144,8 @@ func sendForcedBatchForVector(t *testing.T, txs []byte, opsman *operations.Manag
 	require.NoError(t, err)
 
 	// Create smc client
-	zkEvmAddr := common.HexToAddress(operations.DefaultL1Supernets2SmartContract)
-	zkEvm, err := supernets2.NewSupernets2(zkEvmAddr, ethClient)
+	zkEvmAddr := common.HexToAddress(operations.DefaultL1CDKValidiumSmartContract)
+	zkEvm, err := cdkvalidium.NewCdkvalidium(zkEvmAddr, ethClient)
 	require.NoError(t, err)
 
 	auth, err := operations.GetAuth(operations.DefaultSequencerPrivateKey, operations.DefaultL1ChainID)
