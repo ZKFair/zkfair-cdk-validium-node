@@ -11,6 +11,7 @@ import (
 	"runtime"
 	"time"
 
+	dataCommitteeClient "github.com/0xPolygon/cdk-data-availability/client"
 	zkevm "github.com/0xPolygon/cdk-validium-node"
 	"github.com/0xPolygon/cdk-validium-node/aggregator"
 	"github.com/0xPolygon/cdk-validium-node/config"
@@ -33,7 +34,6 @@ import (
 	"github.com/0xPolygon/cdk-validium-node/state"
 	"github.com/0xPolygon/cdk-validium-node/state/runtime/executor"
 	"github.com/0xPolygon/cdk-validium-node/synchronizer"
-	dataCommitteeClient "github.com/0xPolygon/supernets2-data-availability/client"
 	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/urfave/cli/v2"

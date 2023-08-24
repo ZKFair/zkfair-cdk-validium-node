@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/0xPolygon/cdk-data-availability/client"
 	"github.com/0xPolygon/cdk-validium-node/etherman"
 	"github.com/0xPolygon/cdk-validium-node/event"
 	"github.com/0xPolygon/cdk-validium-node/hex"
@@ -16,7 +17,6 @@ import (
 	"github.com/0xPolygon/cdk-validium-node/state"
 	stateMetrics "github.com/0xPolygon/cdk-validium-node/state/metrics"
 	"github.com/0xPolygon/cdk-validium-node/synchronizer/metrics"
-	"github.com/0xPolygon/supernets2-data-availability/client"
 	"github.com/ethereum/go-ethereum/common"
 	ethTypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/jackc/pgx/v4"
