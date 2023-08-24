@@ -88,7 +88,7 @@ func TestDataCommittee(t *testing.T) {
 		membs = append(membs, member{
 			addr: crypto.PubkeyToAddress(pk.PublicKey),
 			pk:   pk,
-			url:  fmt.Sprintf("http://supernets2-data-availability-%d:420%d", i, i),
+			url:  fmt.Sprintf("http://cdk-data-availability-%d:420%d", i, i),
 			i:    i,
 		})
 	}
@@ -147,10 +147,10 @@ func TestDataCommittee(t *testing.T) {
 		// Stop DAC nodes
 		for i := 0; i < mMembers; i++ {
 			assert.NoError(t, exec.Command(
-				"docker", "kill", "supernets2-data-availability-"+strconv.Itoa(i),
+				"docker", "kill", "cdk-data-availability-"+strconv.Itoa(i),
 			).Run())
 			assert.NoError(t, exec.Command(
-				"docker", "rm", "supernets2-data-availability-"+strconv.Itoa(i),
+				"docker", "rm", "cdk-data-availability-"+strconv.Itoa(i),
 			).Run())
 		}
 		// Stop permissionless node
@@ -173,13 +173,13 @@ func TestDataCommittee(t *testing.T) {
 		// Run DAC node
 		cmd := exec.Command(
 			"docker", "run", "-d",
-			"--name", "supernets2-data-availability-"+strconv.Itoa(m.i),
+			"--name", "cdk-data-availability-"+strconv.Itoa(m.i),
 			"-v", cfgFile+":/app/config.json",
 			"-v", ksFile+":"+ksFile,
 			"--network", "cdk-validium",
 			dacNodeContainer,
 			"/bin/sh", "-c",
-			"/app/supernets2-data-availability run --cfg /app/config.json",
+			"/app/cdk-data-availability run --cfg /app/config.json",
 		)
 		out, err := cmd.CombinedOutput()
 		require.NoError(t, err, string(out))
