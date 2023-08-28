@@ -12,9 +12,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/0xPolygonHermez/zkevm-node/jsonrpc/metrics"
-	"github.com/0xPolygonHermez/zkevm-node/jsonrpc/types"
-	"github.com/0xPolygonHermez/zkevm-node/log"
+	"github.com/0xPolygon/cdk-validium-node/jsonrpc/metrics"
+	"github.com/0xPolygon/cdk-validium-node/jsonrpc/types"
+	"github.com/0xPolygon/cdk-validium-node/log"
 	"github.com/didip/tollbooth/v6"
 	"github.com/gorilla/websocket"
 )

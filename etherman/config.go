@@ -1,6 +1,6 @@
 package etherman
 
-import "github.com/0xPolygonHermez/zkevm-node/etherman/etherscan"
+import "github.com/0xPolygon/cdk-validium-node/etherman/etherscan"
 
 // Config represents the configuration of the etherman
 type Config struct {

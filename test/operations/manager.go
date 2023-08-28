@@ -10,16 +10,16 @@ import (
 	"strings"
 	"time"
 
-	"github.com/0xPolygonHermez/zkevm-node/db"
-	"github.com/0xPolygonHermez/zkevm-node/event"
-	"github.com/0xPolygonHermez/zkevm-node/event/nileventstorage"
-	"github.com/0xPolygonHermez/zkevm-node/log"
-	"github.com/0xPolygonHermez/zkevm-node/merkletree"
-	"github.com/0xPolygonHermez/zkevm-node/state"
-	"github.com/0xPolygonHermez/zkevm-node/state/runtime/executor"
-	"github.com/0xPolygonHermez/zkevm-node/test/constants"
-	"github.com/0xPolygonHermez/zkevm-node/test/dbutils"
-	"github.com/0xPolygonHermez/zkevm-node/test/testutils"
+	"github.com/0xPolygon/cdk-validium-node/db"
+	"github.com/0xPolygon/cdk-validium-node/event"
+	"github.com/0xPolygon/cdk-validium-node/event/nileventstorage"
+	"github.com/0xPolygon/cdk-validium-node/log"
+	"github.com/0xPolygon/cdk-validium-node/merkletree"
+	"github.com/0xPolygon/cdk-validium-node/state"
+	"github.com/0xPolygon/cdk-validium-node/state/runtime/executor"
+	"github.com/0xPolygon/cdk-validium-node/test/constants"
+	"github.com/0xPolygon/cdk-validium-node/test/dbutils"
+	"github.com/0xPolygon/cdk-validium-node/test/testutils"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
@@ -32,15 +32,15 @@ const (
 
 // Public shared
 const (
-	DefaultSequencerAddress                 = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
-	DefaultSequencerPrivateKey              = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
-	DefaultSequencerBalance                 = 400000
-	DefaultMaxCumulativeGasUsed             = 800000
-	DefaultL1Supernets2SmartContract        = "0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82"
-	DefaultL1DataCommitteeContract          = "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6"
-	DefaultL1NetworkURL                     = "http://localhost:8545"
-	DefaultL1NetworkWebSocketURL            = "ws://localhost:8546"
-	DefaultL1ChainID                 uint64 = 1337
+	DefaultSequencerAddress                  = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+	DefaultSequencerPrivateKey               = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
+	DefaultSequencerBalance                  = 400000
+	DefaultMaxCumulativeGasUsed              = 800000
+	DefaultL1CDKValidiumSmartContract        = "0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82"
+	DefaultL1DataCommitteeContract           = "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6"
+	DefaultL1NetworkURL                      = "http://localhost:8545"
+	DefaultL1NetworkWebSocketURL             = "ws://localhost:8546"
+	DefaultL1ChainID                  uint64 = 1337
 
 	DefaultL2NetworkURL                 = "http://localhost:8123"
 	PermissionlessL2NetworkURL          = "http://localhost:8125"

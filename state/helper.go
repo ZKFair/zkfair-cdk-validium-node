@@ -6,8 +6,8 @@ import (
 	"sort"
 	"strconv"
 
-	"github.com/0xPolygonHermez/zkevm-node/hex"
-	"github.com/0xPolygonHermez/zkevm-node/log"
+	"github.com/0xPolygon/cdk-validium-node/hex"
+	"github.com/0xPolygon/cdk-validium-node/log"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/rlp"
 )

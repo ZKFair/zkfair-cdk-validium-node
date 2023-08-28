@@ -1,7 +1,7 @@
 package sequencer
 
 import (
-	"github.com/0xPolygonHermez/zkevm-node/config/types"
+	"github.com/0xPolygon/cdk-validium-node/config/types"
 )
 
 // Config represents the configuration of a sequencer

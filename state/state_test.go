@@ -14,23 +14,23 @@ import (
 	"testing"
 	"time"
 
-	"github.com/0xPolygonHermez/zkevm-node/db"
-	"github.com/0xPolygonHermez/zkevm-node/encoding"
-	"github.com/0xPolygonHermez/zkevm-node/event"
-	"github.com/0xPolygonHermez/zkevm-node/event/nileventstorage"
-	"github.com/0xPolygonHermez/zkevm-node/hex"
-	"github.com/0xPolygonHermez/zkevm-node/log"
-	"github.com/0xPolygonHermez/zkevm-node/merkletree"
-	"github.com/0xPolygonHermez/zkevm-node/merkletree/hashdb"
-	state "github.com/0xPolygonHermez/zkevm-node/state"
-	"github.com/0xPolygonHermez/zkevm-node/state/metrics"
-	"github.com/0xPolygonHermez/zkevm-node/state/runtime"
-	"github.com/0xPolygonHermez/zkevm-node/state/runtime/executor"
-	"github.com/0xPolygonHermez/zkevm-node/test/constants"
-	"github.com/0xPolygonHermez/zkevm-node/test/contracts/bin/Counter"
-	"github.com/0xPolygonHermez/zkevm-node/test/dbutils"
-	"github.com/0xPolygonHermez/zkevm-node/test/operations"
-	"github.com/0xPolygonHermez/zkevm-node/test/testutils"
+	"github.com/0xPolygon/cdk-validium-node/db"
+	"github.com/0xPolygon/cdk-validium-node/encoding"
+	"github.com/0xPolygon/cdk-validium-node/event"
+	"github.com/0xPolygon/cdk-validium-node/event/nileventstorage"
+	"github.com/0xPolygon/cdk-validium-node/hex"
+	"github.com/0xPolygon/cdk-validium-node/log"
+	"github.com/0xPolygon/cdk-validium-node/merkletree"
+	"github.com/0xPolygon/cdk-validium-node/merkletree/hashdb"
+	state "github.com/0xPolygon/cdk-validium-node/state"
+	"github.com/0xPolygon/cdk-validium-node/state/metrics"
+	"github.com/0xPolygon/cdk-validium-node/state/runtime"
+	"github.com/0xPolygon/cdk-validium-node/state/runtime/executor"
+	"github.com/0xPolygon/cdk-validium-node/test/constants"
+	"github.com/0xPolygon/cdk-validium-node/test/contracts/bin/Counter"
+	"github.com/0xPolygon/cdk-validium-node/test/dbutils"
+	"github.com/0xPolygon/cdk-validium-node/test/operations"
+	"github.com/0xPolygon/cdk-validium-node/test/testutils"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
@@ -1525,7 +1525,7 @@ func TestGenesisNewLeafType(t *testing.T) {
 // 	err = testState.ProcessAndStoreClosedBatch(ctx, processCtx, common.Hex2Bytes(tv.BatchL2Data), dbTx) // nolint:ineffassign,staticcheck
 // 	// TODO: actually check for nil err in ProcessAndStoreClosedBatch return value,
 // 	// currently blocked by the issue about the mismatched tx hashes described here
-// 	// https://github.com/0xPolygonHermez/zkevm-node/issues/1033
+// 	// https://github.com/0xPolygon/cdk-validium-node/issues/1033
 // 	// require.NoError(t, err)
 
 // 	// TODO: currently the db tx is marked as invalid after the first error, once

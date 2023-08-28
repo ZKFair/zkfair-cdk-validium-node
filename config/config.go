@@ -5,21 +5,21 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/0xPolygonHermez/zkevm-node/aggregator"
-	"github.com/0xPolygonHermez/zkevm-node/db"
-	"github.com/0xPolygonHermez/zkevm-node/etherman"
-	"github.com/0xPolygonHermez/zkevm-node/ethtxmanager"
-	"github.com/0xPolygonHermez/zkevm-node/event"
-	"github.com/0xPolygonHermez/zkevm-node/gasprice"
-	"github.com/0xPolygonHermez/zkevm-node/jsonrpc"
-	"github.com/0xPolygonHermez/zkevm-node/log"
-	"github.com/0xPolygonHermez/zkevm-node/merkletree"
-	"github.com/0xPolygonHermez/zkevm-node/metrics"
-	"github.com/0xPolygonHermez/zkevm-node/pool"
-	"github.com/0xPolygonHermez/zkevm-node/sequencer"
-	"github.com/0xPolygonHermez/zkevm-node/sequencesender"
-	"github.com/0xPolygonHermez/zkevm-node/state/runtime/executor"
-	"github.com/0xPolygonHermez/zkevm-node/synchronizer"
+	"github.com/0xPolygon/cdk-validium-node/aggregator"
+	"github.com/0xPolygon/cdk-validium-node/db"
+	"github.com/0xPolygon/cdk-validium-node/etherman"
+	"github.com/0xPolygon/cdk-validium-node/ethtxmanager"
+	"github.com/0xPolygon/cdk-validium-node/event"
+	"github.com/0xPolygon/cdk-validium-node/gasprice"
+	"github.com/0xPolygon/cdk-validium-node/jsonrpc"
+	"github.com/0xPolygon/cdk-validium-node/log"
+	"github.com/0xPolygon/cdk-validium-node/merkletree"
+	"github.com/0xPolygon/cdk-validium-node/metrics"
+	"github.com/0xPolygon/cdk-validium-node/pool"
+	"github.com/0xPolygon/cdk-validium-node/sequencer"
+	"github.com/0xPolygon/cdk-validium-node/sequencesender"
+	"github.com/0xPolygon/cdk-validium-node/state/runtime/executor"
+	"github.com/0xPolygon/cdk-validium-node/synchronizer"
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/viper"
 	"github.com/urfave/cli/v2"
@@ -76,7 +76,7 @@ type Config struct {
 	// So after the batch number `ForkUpgradeBatchNumber` is virtualized and verified you could update
 	// the system (SC,...) to new forkId and remove this value to allow the system to keep
 	// Virtualizing and verifying the new batchs.
-	// Check issue [#2236](https://github.com/0xPolygonHermez/zkevm-node/issues/2236) to known more
+	// Check issue [#2236](https://github.com/0xPolygon/cdk-validium-node/issues/2236) to known more
 	// This value overwrite `SequenceSender.ForkUpgradeBatchNumber`
 	ForkUpgradeBatchNumber uint64 `mapstructure:"ForkUpgradeBatchNumber"`
 	// Which is the new forkId
@@ -154,7 +154,7 @@ func Load(ctx *cli.Context, loadNetworkConfig bool) (*Config, error) {
 	viper.AutomaticEnv()
 	replacer := strings.NewReplacer(".", "_")
 	viper.SetEnvKeyReplacer(replacer)
-	viper.SetEnvPrefix("SUPERNETS2_NODE")
+	viper.SetEnvPrefix("CDK_VALIDIUM_NODE")
 	err = viper.ReadInConfig()
 	if err != nil {
 		_, ok := err.(viper.ConfigFileNotFoundError)

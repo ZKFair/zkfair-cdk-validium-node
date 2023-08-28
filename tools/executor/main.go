@@ -9,11 +9,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/0xPolygonHermez/zkevm-node/db"
-	"github.com/0xPolygonHermez/zkevm-node/log"
-	"github.com/0xPolygonHermez/zkevm-node/state"
-	"github.com/0xPolygonHermez/zkevm-node/state/runtime/executor"
-	"github.com/0xPolygonHermez/zkevm-node/test/testutils"
+	"github.com/0xPolygon/cdk-validium-node/db"
+	"github.com/0xPolygon/cdk-validium-node/log"
+	"github.com/0xPolygon/cdk-validium-node/state"
+	"github.com/0xPolygon/cdk-validium-node/state/runtime/executor"
+	"github.com/0xPolygon/cdk-validium-node/test/testutils"
 )
 
 const (

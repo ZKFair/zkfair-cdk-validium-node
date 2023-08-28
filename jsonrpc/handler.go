@@ -9,8 +9,8 @@ import (
 	"sync"
 	"unicode"
 
-	"github.com/0xPolygonHermez/zkevm-node/jsonrpc/types"
-	"github.com/0xPolygonHermez/zkevm-node/log"
+	"github.com/0xPolygon/cdk-validium-node/jsonrpc/types"
+	"github.com/0xPolygon/cdk-validium-node/log"
 	"github.com/gorilla/websocket"
 )
 

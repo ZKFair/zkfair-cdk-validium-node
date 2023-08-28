@@ -1,6 +1,6 @@
 {
 	"$schema": "https://json-schema.org/draft/2020-12/schema",
-	"$id": "github.com/0xPolygonHermez/zkevm-node/config/config",
+	"$id": "github.com/0xPolygon/cdk-validium-node/config/config",
 	"properties": {
 		"IsTrustedSequencer": {
 			"type": "boolean",
@@ -9,7 +9,7 @@
 		},
 		"ForkUpgradeBatchNumber": {
 			"type": "integer",
-			"description": "Last batch number before  a forkid change (fork upgrade). That implies that\ngreater batch numbers are going to be trusted but no virtualized neither verified.\nSo after the batch number `ForkUpgradeBatchNumber` is virtualized and verified you could update\nthe system (SC,...) to new forkId and remove this value to allow the system to keep\nVirtualizing and verifying the new batchs.\nCheck issue [#2236](https://github.com/0xPolygonHermez/zkevm-node/issues/2236) to known more\nThis value overwrite `SequenceSender.ForkUpgradeBatchNumber`",
+			"description": "Last batch number before  a forkid change (fork upgrade). That implies that\ngreater batch numbers are going to be trusted but no virtualized neither verified.\nSo after the batch number `ForkUpgradeBatchNumber` is virtualized and verified you could update\nthe system (SC,...) to new forkId and remove this value to allow the system to keep\nVirtualizing and verifying the new batchs.\nCheck issue [#2236](https://github.com/0xPolygon/cdk-validium-node/issues/2236) to known more\nThis value overwrite `SequenceSender.ForkUpgradeBatchNumber`",
 			"default": 0
 		},
 		"ForkUpgradeNewForkId": {
@@ -204,7 +204,7 @@
 						"Host": {
 							"type": "string",
 							"description": "Host address of database",
-							"default": "supernets2-pool-db"
+							"default": "cdk-validium-pool-db"
 						},
 						"Port": {
 							"type": "string",
@@ -818,7 +818,7 @@
 							"description": "Chain ID of the L1 network",
 							"default": 0
 						},
-						"supernets2Address": {
+						"cdkValidiumAddress": {
 							"items": {
 								"type": "integer"
 							},
@@ -845,7 +845,7 @@
 							"minItems": 20,
 							"description": "Address of the L1 GlobalExitRootManager contract"
 						},
-						"supernets2DataCommitteeContract": {
+						"cdkDataCommitteeContract": {
 							"items": {
 								"type": "integer"
 							},
@@ -1009,7 +1009,7 @@
 			"properties": {
 				"URI": {
 					"type": "string",
-					"default": "supernets2-prover:50071"
+					"default": "cdk-validium-prover:50071"
 				},
 				"MaxResourceExhaustedAttempts": {
 					"type": "integer",
@@ -1040,7 +1040,7 @@
 				"URI": {
 					"type": "string",
 					"description": "URI is the server URI.",
-					"default": "supernets2-prover:50061"
+					"default": "cdk-validium-prover:50061"
 				}
 			},
 			"additionalProperties": false,
@@ -1067,7 +1067,7 @@
 				"Host": {
 					"type": "string",
 					"description": "Host address of database",
-					"default": "supernets2-state-db"
+					"default": "cdk-validium-state-db"
 				},
 				"Port": {
 					"type": "string",
@@ -1195,7 +1195,7 @@
 				"Host": {
 					"type": "string",
 					"description": "Host address of database",
-					"default": "supernets2-state-db"
+					"default": "cdk-validium-state-db"
 				},
 				"Port": {
 					"type": "string",

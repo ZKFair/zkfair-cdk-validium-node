@@ -3,7 +3,7 @@
 package synchronizer
 
 import (
-	client "github.com/0xPolygon/supernets2-data-availability/client"
+	client "github.com/0xPolygon/cdk-data-availability/client"
 	mock "github.com/stretchr/testify/mock"
 )
 

@@ -5,7 +5,7 @@ import (
 	"os/exec"
 	"time"
 
-	"github.com/0xPolygonHermez/zkevm-node/log"
+	"github.com/0xPolygon/cdk-validium-node/log"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
@@ -33,7 +33,7 @@ func NewExecutorClient(ctx context.Context, c Config) (ExecutorServiceClient, *g
 			log.Infof("Retrying connection to executor #%d", connectionRetries)
 			time.Sleep(time.Duration(delay) * time.Second)
 			connectionRetries = connectionRetries + 1
-			out, err := exec.Command("docker", []string{"logs", "supernets2-prover"}...).Output()
+			out, err := exec.Command("docker", []string{"logs", "cdk-validium-prover"}...).Output()
 			if err == nil {
 				log.Infof("Prover logs:\n%s\n", out)
 			}

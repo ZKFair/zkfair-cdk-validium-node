@@ -4,14 +4,14 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/0xPolygonHermez/zkevm-node"
-	"github.com/0xPolygonHermez/zkevm-node/config"
-	"github.com/0xPolygonHermez/zkevm-node/jsonrpc"
-	"github.com/0xPolygonHermez/zkevm-node/log"
+	node "github.com/0xPolygon/cdk-validium-node"
+	"github.com/0xPolygon/cdk-validium-node/config"
+	"github.com/0xPolygon/cdk-validium-node/jsonrpc"
+	"github.com/0xPolygon/cdk-validium-node/log"
 	"github.com/urfave/cli/v2"
 )
 
-const appName = "supernets2-node"
+const appName = "cdk-validium-node"
 
 const (
 	// AGGREGATOR is the aggregator component identifier
@@ -97,7 +97,7 @@ var (
 func main() {
 	app := cli.NewApp()
 	app.Name = appName
-	app.Version = zkevm.Version
+	app.Version = node.Version
 	flags := []cli.Flag{
 		&configFileFlag,
 		&yesFlag,
@@ -114,7 +114,7 @@ func main() {
 		{
 			Name:    "run",
 			Aliases: []string{},
-			Usage:   "Run the supernets2-node",
+			Usage:   "Run the cdk-validium-node",
 			Action:  start,
 			Flags:   append(flags, &networkFlag, &customNetworkFlag, &migrationsFlag),
 		},

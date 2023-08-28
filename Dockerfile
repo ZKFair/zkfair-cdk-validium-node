@@ -13,7 +13,7 @@ RUN cd /src && make build
 
 # CONTAINER FOR RUNNING BINARY
 FROM alpine:3.18.0
-COPY --from=build /src/dist/supernets2-node /app/supernets2-node
+COPY --from=build /src/dist/cdk-validium-node /app/cdk-validium-node
 RUN apk update && apk add postgresql15-client
 EXPOSE 8123
-CMD ["/bin/sh", "-c", "/app/supernets2-node run"]
+CMD ["/bin/sh", "-c", "/app/cdk-validium-node run"]

@@ -5,9 +5,9 @@ import (
 	"math/big"
 	"strings"
 
-	"github.com/0xPolygonHermez/zkevm-node/config"
-	"github.com/0xPolygonHermez/zkevm-node/encoding"
-	"github.com/0xPolygonHermez/zkevm-node/log"
+	"github.com/0xPolygon/cdk-validium-node/config"
+	"github.com/0xPolygon/cdk-validium-node/encoding"
+	"github.com/0xPolygon/cdk-validium-node/log"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/urfave/cli/v2"
 )
@@ -37,7 +37,7 @@ func approveTokens(ctx *cli.Context) error {
 
 	if !ctx.Bool(config.FlagYes) {
 		fmt.Print("*WARNING* Are you sure you want to approve ", amount.String(),
-			" tokens (in wei) for the smc <Name: PoE. Address: "+c.NetworkConfig.L1Config.Supernets2Addr.String()+">? [y/N]: ")
+			" tokens (in wei) for the smc <Name: PoE. Address: "+c.NetworkConfig.L1Config.CDKValidiumAddr.String()+">? [y/N]: ")
 		var input string
 		if _, err := fmt.Scanln(&input); err != nil {
 			return err
@@ -64,7 +64,7 @@ func approveTokens(ctx *cli.Context) error {
 		return err
 	}
 
-	tx, err := etherman.ApproveMatic(ctx.Context, auth.From, amount, c.NetworkConfig.L1Config.Supernets2Addr)
+	tx, err := etherman.ApproveMatic(ctx.Context, auth.From, amount, c.NetworkConfig.L1Config.CDKValidiumAddr)
 	if err != nil {
 		return err
 	}

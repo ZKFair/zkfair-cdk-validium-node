@@ -1,6 +1,6 @@
 {
 	"$schema": "https://json-schema.org/draft/2020-12/schema",
-	"$id": "github.com/0xPolygonHermez/zkevm-node/config/config",
+	"$id": "github.com/0xPolygon/cdk-validium-node/config/config",
 	"properties": {
 		"root": {
 			"type": "string",
@@ -49,7 +49,7 @@
 					"type": "integer",
 					"description": "Chain ID of the L1 network"
 				},
-				"supernets2Address": {
+				"cdkValidiumAddress": {
 					"items": {
 						"type": "integer"
 					},
@@ -76,7 +76,7 @@
 					"minItems": 20,
 					"description": "Address of the L1 GlobalExitRootManager contract"
 				},
-				"supernets2DataCommitteeContract": {
+				"cdkDataCommitteeContract": {
 					"items": {
 						"type": "integer"
 					},

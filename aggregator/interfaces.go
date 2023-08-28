@@ -4,10 +4,10 @@ import (
 	"context"
 	"math/big"
 
-	"github.com/0xPolygonHermez/zkevm-node/aggregator/prover"
-	ethmanTypes "github.com/0xPolygonHermez/zkevm-node/etherman/types"
-	"github.com/0xPolygonHermez/zkevm-node/ethtxmanager"
-	"github.com/0xPolygonHermez/zkevm-node/state"
+	"github.com/0xPolygon/cdk-validium-node/aggregator/prover"
+	ethmanTypes "github.com/0xPolygon/cdk-validium-node/etherman/types"
+	"github.com/0xPolygon/cdk-validium-node/ethtxmanager"
+	"github.com/0xPolygon/cdk-validium-node/state"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/jackc/pgx/v4"
 )

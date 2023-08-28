@@ -17,8 +17,8 @@ main(){
 
         echo "${script_contents}" > "${script_file_path}"
 
-        docker cp "${script_file_path}" supernets2-state-db:"${script_file_path}"
-        docker exec supernets2-state-db bash -c "chmod a+x ${script_file_path} && psql ${DBNAME} ${DBUSER} -v ON_ERROR_STOP=ON --single-transaction -f ${script_file_path}"
+        docker cp "${script_file_path}" cdk-validium-state-db:"${script_file_path}"
+        docker exec cdk-validium-state-db bash -c "chmod a+x ${script_file_path} && psql ${DBNAME} ${DBUSER} -v ON_ERROR_STOP=ON --single-transaction -f ${script_file_path}"
 
         echo "Done"
     done

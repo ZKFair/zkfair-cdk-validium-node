@@ -14,13 +14,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/0xPolygon/supernets2-data-availability/config"
-	cTypes "github.com/0xPolygon/supernets2-node/config/types"
-	"github.com/0xPolygon/supernets2-node/db"
-	"github.com/0xPolygon/supernets2-node/jsonrpc"
-	"github.com/0xPolygonHermez/zkevm-node/etherman/smartcontracts/supernets2datacommittee"
-	"github.com/0xPolygonHermez/zkevm-node/log"
-	"github.com/0xPolygonHermez/zkevm-node/test/operations"
+	"github.com/0xPolygon/cdk-data-availability/config"
+	cTypes "github.com/0xPolygon/cdk-validium-node/config/types"
+	"github.com/0xPolygon/cdk-validium-node/db"
+	"github.com/0xPolygon/cdk-validium-node/etherman/smartcontracts/cdkdatacommittee"
+	"github.com/0xPolygon/cdk-validium-node/jsonrpc"
+	"github.com/0xPolygon/cdk-validium-node/log"
+	"github.com/0xPolygon/cdk-validium-node/test/operations"
 	"github.com/ethereum/go-ethereum"
 	eTypes "github.com/ethereum/go-ethereum/core/types"
 
@@ -39,7 +39,7 @@ func TestDataCommittee(t *testing.T) {
 		ksFile           = "/tmp/pkey"
 		cfgFile          = "/tmp/dacnodeconfigfile.json"
 		ksPass           = "pass"
-		dacNodeContainer = "hermeznetwork/supernets2-data-availability:v0.0.1"
+		dacNodeContainer = "hermeznetwork/cdk-data-availability:v0.0.1"
 	)
 
 	// Setup
@@ -72,7 +72,7 @@ func TestDataCommittee(t *testing.T) {
 	require.NoError(t, err)
 	clientL1, err := ethclient.Dial(operations.DefaultL1NetworkURL)
 	require.NoError(t, err)
-	dacSC, err := supernets2datacommittee.NewSupernets2datacommittee(
+	dacSC, err := cdkdatacommittee.NewCdkdatacommittee(
 		common.HexToAddress(operations.DefaultL1DataCommitteeContract),
 		clientL1,
 	)
@@ -88,7 +88,7 @@ func TestDataCommittee(t *testing.T) {
 		membs = append(membs, member{
 			addr: crypto.PubkeyToAddress(pk.PublicKey),
 			pk:   pk,
-			url:  fmt.Sprintf("http://supernets2-data-availability-%d:420%d", i, i),
+			url:  fmt.Sprintf("http://cdk-data-availability-%d:420%d", i, i),
 			i:    i,
 		})
 	}
@@ -110,10 +110,10 @@ func TestDataCommittee(t *testing.T) {
 	// Spin up M DAC nodes
 	dacNodeConfig := config.Config{
 		L1: config.L1Config{
-			WsURL:       "ws://supernets2-mock-l1-network:8546",
-			Contract:    "0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82",
-			Timeout:     cTypes.NewDuration(time.Minute * 3),
-			RetryPeriod: cTypes.NewDuration(time.Second * 5),
+			RpcURL:               "http://cdk-validium-mock-l1-network:8545",
+			WsURL:                "ws://cdk-validium-mock-l1-network:8546",
+			CDKValidiumAddress:   operations.DefaultL1CDKValidiumSmartContract,
+			DataCommitteeAddress: operations.DefaultL1DataCommitteeContract,
 		},
 		PrivateKey: cTypes.KeystoreFileConfig{
 			Path:     ksFile,
@@ -123,7 +123,7 @@ func TestDataCommittee(t *testing.T) {
 			Name:      "committee_db",
 			User:      "committee_user",
 			Password:  "committee_password",
-			Host:      "supernets2-data-node-db",
+			Host:      "cdk-validium-data-node-db",
 			Port:      "5432",
 			EnableLog: false,
 			MaxConns:  10,
@@ -148,10 +148,10 @@ func TestDataCommittee(t *testing.T) {
 		// Stop DAC nodes
 		for i := 0; i < mMembers; i++ {
 			assert.NoError(t, exec.Command(
-				"docker", "kill", "supernets2-data-availability-"+strconv.Itoa(i),
+				"docker", "kill", "cdk-data-availability-"+strconv.Itoa(i),
 			).Run())
 			assert.NoError(t, exec.Command(
-				"docker", "rm", "supernets2-data-availability-"+strconv.Itoa(i),
+				"docker", "rm", "cdk-data-availability-"+strconv.Itoa(i),
 			).Run())
 		}
 		// Stop permissionless node
@@ -174,16 +174,17 @@ func TestDataCommittee(t *testing.T) {
 		// Run DAC node
 		cmd := exec.Command(
 			"docker", "run", "-d",
-			"--name", "supernets2-data-availability-"+strconv.Itoa(m.i),
+			"--name", "cdk-data-availability-"+strconv.Itoa(m.i),
 			"-v", cfgFile+":/app/config.json",
 			"-v", ksFile+":"+ksFile,
-			"--network", "supernets2",
+			"--network", "cdk-validium",
 			dacNodeContainer,
 			"/bin/sh", "-c",
-			"/app/supernets2-data-availability run --cfg /app/config.json",
+			"/app/cdk-data-availability run --cfg /app/config.json",
 		)
 		out, err := cmd.CombinedOutput()
 		require.NoError(t, err, string(out))
+		log.Infof("DAC node %d started", m.i)
 		time.Sleep(time.Second * 5)
 	}
 

@@ -1,4 +1,4 @@
-module github.com/0xPolygon/supernets2-node
+module github.com/0xPolygon/cdk-validium-node
 
 go 1.19
 
@@ -23,7 +23,7 @@ require (
 	github.com/spf13/afero v1.9.5
 	github.com/spf13/viper v1.16.0
 	github.com/stretchr/testify v1.8.4
-	github.com/umbracle/ethgo v0.1.3
+	github.com/umbracle/ethgo v0.1.4-0.20230712173909-df37dddf16f0
 	github.com/urfave/cli/v2 v2.25.7
 	go.uber.org/zap v1.24.0
 	golang.org/x/crypto v0.11.0
@@ -146,10 +146,8 @@ require (
 )
 
 require (
-	github.com/0xPolygon/supernets2-data-availability v0.0.0-20230707114052-4ace9ee1f2e3
-	github.com/0xPolygonHermez/zkevm-node v0.0.0-00010101000000-000000000000
+	github.com/0xPolygon/cdk-data-availability v0.0.0-20230824143045-5ff4265f5f6f
+	github.com/0xPolygonHermez/zkevm-node v0.1.0-RC8.0.20230601153103-86d9fb808691
 	github.com/golang/protobuf v1.5.3
 	github.com/prometheus/client_golang v1.16.0
 )
-
-replace github.com/0xPolygonHermez/zkevm-node => ./

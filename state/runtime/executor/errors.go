@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"math"
 
-	"github.com/0xPolygonHermez/zkevm-node/state/runtime"
+	"github.com/0xPolygon/cdk-validium-node/state/runtime"
 )
 
 var (

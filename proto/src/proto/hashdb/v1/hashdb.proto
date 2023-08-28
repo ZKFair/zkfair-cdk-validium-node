@@ -4,7 +4,7 @@ import "google/protobuf/empty.proto";
 
 package hashdb.v1;
 
-option go_package = "github.com/0xPolygonHermez/zkevm-node/merkletree/hashdb";
+option go_package = "github.com/0xPolygon/cdk-validium-node/merkletree/hashdb";
 
 message Version {
     string v0_0_1 = 1;

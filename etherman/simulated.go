@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"math/big"
 
-	"github.com/0xPolygonHermez/zkevm-node/etherman/smartcontracts/matic"
-	"github.com/0xPolygonHermez/zkevm-node/etherman/smartcontracts/mockverifier"
-	"github.com/0xPolygonHermez/zkevm-node/etherman/smartcontracts/polygonzkevmbridge"
-	"github.com/0xPolygonHermez/zkevm-node/etherman/smartcontracts/polygonzkevmglobalexitroot"
-	"github.com/0xPolygonHermez/zkevm-node/etherman/smartcontracts/supernets2"
-	"github.com/0xPolygonHermez/zkevm-node/etherman/smartcontracts/supernets2datacommittee"
+	"github.com/0xPolygon/cdk-validium-node/etherman/smartcontracts/cdkdatacommittee"
+	"github.com/0xPolygon/cdk-validium-node/etherman/smartcontracts/cdkvalidium"
+	"github.com/0xPolygon/cdk-validium-node/etherman/smartcontracts/matic"
+	"github.com/0xPolygon/cdk-validium-node/etherman/smartcontracts/mockverifier"
+	"github.com/0xPolygon/cdk-validium-node/etherman/smartcontracts/polygonzkevmbridge"
+	"github.com/0xPolygon/cdk-validium-node/etherman/smartcontracts/polygonzkevmglobalexitroot"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind/backends"
 	"github.com/ethereum/go-ethereum/common"
@@ -25,7 +25,7 @@ func NewSimulatedEtherman(cfg Config, auth *bind.TransactOpts) (
 	ethBackend *backends.SimulatedBackend,
 	maticAddr common.Address,
 	br *polygonzkevmbridge.Polygonzkevmbridge,
-	da *supernets2datacommittee.Supernets2datacommittee,
+	da *cdkdatacommittee.Cdkdatacommittee,
 	err error,
 ) {
 	if auth == nil {
@@ -44,7 +44,7 @@ func NewSimulatedEtherman(cfg Config, auth *bind.TransactOpts) (
 	client := backends.NewSimulatedBackend(genesisAlloc, blockGasLimit)
 
 	// DAC Setup
-	dataCommitteeAddr, _, da, err := supernets2datacommittee.DeploySupernets2datacommittee(auth, client)
+	dataCommitteeAddr, _, da, err := cdkdatacommittee.DeployCdkdatacommittee(auth, client)
 	if err != nil {
 		return nil, nil, common.Address{}, nil, nil, err
 	}
@@ -85,7 +85,7 @@ func NewSimulatedEtherman(cfg Config, auth *bind.TransactOpts) (
 	if err != nil {
 		return nil, nil, common.Address{}, nil, nil, err
 	}
-	poeAddr, _, poe, err := supernets2.DeploySupernets2(auth, client, exitManagerAddr, maticAddr, rollupVerifierAddr, bridgeAddr, dataCommitteeAddr, 1000, 1) //nolint
+	poeAddr, _, poe, err := cdkvalidium.DeployCdkvalidium(auth, client, exitManagerAddr, maticAddr, rollupVerifierAddr, bridgeAddr, dataCommitteeAddr, 1000, 1) //nolint
 	if err != nil {
 		return nil, nil, common.Address{}, nil, nil, err
 	}
@@ -93,8 +93,7 @@ func NewSimulatedEtherman(cfg Config, auth *bind.TransactOpts) (
 	if err != nil {
 		return nil, nil, common.Address{}, nil, nil, err
 	}
-
-	poeParams := supernets2.Supernets2InitializePackedParameters{
+	poeParams := cdkvalidium.CDKValidiumInitializePackedParameters{
 		Admin:                    auth.From,
 		TrustedSequencer:         auth.From,
 		PendingStateTimeout:      10000, //nolint:gomnd
@@ -133,7 +132,7 @@ func NewSimulatedEtherman(cfg Config, auth *bind.TransactOpts) (
 	client.Commit()
 	c := &Client{
 		EthClient:             client,
-		Supernets2:            poe,
+		CDKValidium:           poe,
 		Matic:                 maticContract,
 		GlobalExitRootManager: globalExitRoot,
 		DataCommittee:         da,
