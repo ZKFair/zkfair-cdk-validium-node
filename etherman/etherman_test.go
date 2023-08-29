@@ -55,7 +55,7 @@ func newTestingEnv() (
 	if err != nil {
 		log.Fatal(err)
 	}
-	ethman, ethBackend, maticAddr, br, da, err = NewSimulatedEtherman(Config{}, auth)
+	ethman, ethBackend, maticAddr, br, da, err = NewSimulatedEtherman(Config{ForkIDChunkSize: 10}, auth)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -413,7 +413,7 @@ func TestGetForks(t *testing.T) {
 	// Set up testing environment
 	etherman, _, _, _, _, _ := newTestingEnv()
 	ctx := context.Background()
-	forks, err := etherman.GetForks(ctx, 0)
+	forks, err := etherman.GetForks(ctx, 0, 132)
 	require.NoError(t, err)
 	assert.Equal(t, 1, len(forks))
 	assert.Equal(t, uint64(1), forks[0].ForkId)
