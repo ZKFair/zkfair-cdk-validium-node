@@ -1,5 +1,18 @@
 # Polygon CDK Validium Node
 
+For a full overveiw of the CDK-Validium please reference the [CDK documentation](https://wiki.polygon.technology/docs/cdk/).
+
+The CDK-Validium solution is made up of several different components, start with the [CDK Validium Node](https://github.com/0xPolygon/cdk-validium-node). However, for quick reference, the complete list of components are outlined below:
+
+| Component                                                                     | Description                                                          |
+| ----------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| [CDK Validium Node](https://github.com/0xPolygon/cdk-validium-node)           | Node implementation for the CDK networks in Validium mode            |
+| [CDK Validium Contracts](https://github.com/0xPolygon/cdk-validium-contracts) | Smart contracts implementation for the CDK networks in Validium mode |
+| [CDK Data Availability](https://github.com/0xPolygon/cdk-data-availability)   | Data availability implementation for the CDK networks          |
+| [Prover / Executor](https://github.com/0xPolygonHermez/zkevm-prover)          | zkEVM engine and prover implementation                               |
+| [Bridge Service](https://github.com/0xPolygonHermez/zkevm-bridge-service)     | Bridge service implementation for CDK networks                       |
+| [Bridge UI](https://github.com/0xPolygonHermez/zkevm-bridge-ui)               | UI for the CDK networks bridge                                       |
+
 ## A Robust Client for zkValidiums, Powered by Polygon zkEVM
 
 The CDK Validium Node is engineered to operate a zkValidium on the Ethereum network. It combines the scalability of zkRollups with the data availability features of Validium to offer a secure and efficient layer-2 solution.
