@@ -13,11 +13,13 @@ The CDK-Validium solution is made up of several components, start with the [CDK 
 | [Bridge Service](https://github.com/0xPolygonHermez/zkevm-bridge-service)     | Bridge service implementation for CDK networks                       |
 | [Bridge UI](https://github.com/0xPolygonHermez/zkevm-bridge-ui)               | UI for the CDK networks bridge                                       |
 
-## Overview
+Understanding the underlying protocol is crucial when working with an implementation. This project is based on the Polygon zkEVM network, which is designed to bring scalability to Ethereum-compatible blockchains through the use of zk-Rollups and Validium.
 
-### Key Components
+For an in-depth understanding of the protocol’s specifications, please refer to the [zkEVM Protocol Overview](https://wiki.polygon.technology/docs/zkevm/)
 
-#### Aggregator
+## Key Components
+
+### Aggregator
 
 The Aggregator is responsible for submitting validity proofs of the L2 state to L1. To do so, it fetches the batches sequencced by the sequencer, and interacts with the provers to generate the ZeroKnowledge Proofs (ZKPs).
 
@@ -27,7 +29,7 @@ To do so in a efficient way, the Aggregator will:
 - Aggregate proofs from many batches, a single proof can verify multiple batches
 - Send the aggregated proof to L1 using the EthTxManager
 
-#### Prover
+### Prover
 
 The Prover is tasked with generating proofs for the batched transactions. These proofs are essential for the subsequent validation of the transactions on the Ethereum mainnet. In general:
 
@@ -37,7 +39,7 @@ The Prover is tasked with generating proofs for the batched transactions. These 
 
 Note that this software is not implemented in this repo, but in [this one](https://github.com/0xPolygonHermez/zkevm-prover)
 
-#### Sequencer
+### Sequencer
 
 The Sequencer is responsible for ordering transactions, in other words, making the state move forward:
 
@@ -45,7 +47,7 @@ The Sequencer is responsible for ordering transactions, in other words, making t
 - State Transition: Collaborates with the Executor to process transactions and update the state.
 - Trusted finality: Once the sequencer has added a transaction into the state, it shares this information with other nodes, making the transaction final. Other nodes will need to trust that this transaction is added into the state until they get data availability (DA) and validity (ZKPs) confirmations
 
-#### SequenceSender
+### SequenceSender
 
 The SequenceSender’s role is to send the ordered list of transactions, known as a sequence, to the Ethereum mainnet. It also collaborates with the Data Availability layer, ensuring that all transaction data is accessible off-chain. It plays a pivotal role in finalizing the rollup:
 
@@ -53,7 +55,7 @@ The SequenceSender’s role is to send the ordered list of transactions, known a
 - Data Availability: Works in tandem with the Data Availability layer to ensure off-chain data is accessible.
 - L1 Interaction: Utilizes the EthTxManager to handle L1 transaction nuances like nonce management and gas price adjustments.
 
-#### Synchronizer
+### Synchronizer
 
 The Synchronizer keeps the node’s local state in sync with the Ethereum mainnet. It listens for events emitted by the smart contract on the mainnet and updates the local state to match. The Synchronizer acts as the bridge between the Ethereum mainnet and the node:
 
@@ -62,7 +64,7 @@ The Synchronizer keeps the node’s local state in sync with the Ethereum mainne
 - State Updating: Aligns the local state with the mainnet, ensuring consistency.
 - Reorg Handling: Detects and manages blockchain reorganizations to maintain data integrity.
 
-#### Data Availability Configuration
+### Data Availability Configuration
 
 The Data Availability (DA) layer is a crucial component that ensures all transaction data is available when needed. This off-chain storage solution is configurable, allowing operators to set parameters that best suit their needs. The DA layer is essential for the Validium system, where data availability is maintained off-chain but can be made available for verification when required. In general:
 
@@ -70,7 +72,7 @@ The Data Availability (DA) layer is a crucial component that ensures all transac
 - Configurability: Allows chain operators to customize data storage parameters.
 - Data Verification: Provides mechanisms for data integrity checks, crucial for the Validium model.
 
-#### Executor
+### Executor
 
 The Executor is the state transition implementation, in this case a EVM implementation:
 
@@ -80,7 +82,7 @@ The Executor is the state transition implementation, in this case a EVM implemen
 
 Note that this software is not implemented in this repo, but in [this one](https://github.com/0xPolygonHermez/zkevm-prover)
 
-#### EthTxManager
+### EthTxManager
 
 The EthTxManager is crucial for interacting with the Ethereum mainnet:
 
@@ -88,7 +90,7 @@ The EthTxManager is crucial for interacting with the Ethereum mainnet:
 - Nonce Management: Takes care of the nonce for each account involved in a transaction.
 - Gas Price Adjustment: Dynamically adjusts the gas price to ensure that transactions are mined in a timely manner.
 
-#### State
+### State
 
 The State component is the backbone of the node’s data management:
 
@@ -96,14 +98,14 @@ The State component is the backbone of the node’s data management:
 - Executor Integration: Communicates with the Executor to process transactions and update the state.
 - StateDB: used for persistance
 
-#### Pool
+### Pool
 
 The Pool serves as a temporary storage for transactions:
 
 - Transaction Storage: Holds transactions submitted via the RPC.
 - Sequencer Interaction: Provides transactions to the Sequencer for ordering and batch creation.
 
-#### JSON RPC
+### JSON RPC
 
 The JSON RPC serves as the HTTP interface for user interaction:
 
@@ -113,19 +115,13 @@ The JSON RPC serves as the HTTP interface for user interaction:
 - State Interaction: Retrieves data from the state and processes transactions.
 - Pool Interaction: Stores transactions in the pool.
 
-#### L2GasPricer
+### L2GasPricer
 
 The L2GasPricer is responsible for calculating the gas price on L2 based on the L1 gas price:
 
 - L1 Gas Price Fetching: Retrieves the current L1 gas price.
 - Gas Price Calculation: Applies a formula to calculate the suggested L2 gas price.
 - Pool Storage: Stores the calculated L2 gas price in the pool for consumption by the rpc.
-
-## About the Polygon zkEVM Network
-
-Understanding the underlying protocol is crucial when working with an implementation. This project is based on the Polygon zkEVM network, which is designed to bring scalability to Ethereum-compatible blockchains through the use of zk-Rollups and Validium.
-
-For an in-depth understanding of the protocol’s specifications, please refer to the [zkEVM Protocol Overview](https://wiki.polygon.technology/docs/zkevm/)
 
 ## Run a CDK Validium
 
