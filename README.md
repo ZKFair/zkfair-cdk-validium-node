@@ -17,6 +17,86 @@ Understanding the underlying protocol is crucial when working with an implementa
 
 For an in-depth understanding of the protocol’s specifications, please refer to the [zkEVM Protocol Overview](https://wiki.polygon.technology/docs/zkevm/)
 
+## Run a CDK Validium
+
+### Development
+
+For a streamlined development experience, it’s highly recommended to utilize the make utility for tasks such as building and testing the code. To view a comprehensive list of available commands, simply execute `make help` in your terminal.
+
+This step by step guide will result in a local environment that has everything needed to test and develop on a CDK Validium, but note that:
+
+- everything will be run on a ephemeral and local L1 network, once the environment is shutdown, all progress will be lost
+- ZK Proofs are mocked
+- Bridge service and UI is not included as part of this setup, instead there is a pre-funded account
+- ARM devices (such as Apple M1 and M2) are not supported
+
+#### Steps
+
+1. Clone this GitHub repository to your local machine:
+
+```
+git clone https://github.com/0xPolygon/cdk-validium-node.git
+```
+
+2. Navigate to the cloned directory:
+
+```
+cd cdk-validium-node
+```
+
+3. Build the Docker image using the provided Dockerfile:
+
+```
+make build-docker
+```
+
+4. Navigate to the test directory:
+
+```
+cd test
+```
+
+5. Run all needed components:
+
+```
+make run
+```
+
+#### Usage
+
+- L2 RPC endpoint: `http://localhost:8123`
+- L2 Chain ID: 1001
+- L1 RPC endpoint: `http:localhost:8545`
+- L1 Chain ID: 1337
+- Pre funded account private key: `0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80`
+
+#### Troubleshooting
+
+Everything is run using docker, so if anything is not working, first thing is to identify what containers are running or not:
+
+```
+docker compose ps
+```
+
+Then check the logs:
+
+```
+docker logs <problematic conteiner, example: cdk-validium-sync>
+```
+
+Aditionaly, it can be worth checking the DBs:
+
+- StateDB: `psql -h localhost -p 5432 -U state_user state_db`, password: `state_password`
+- PoolDB: `psql -h localhost -p 5433 -U pool_user pool_db`, password: `pool_password`
+
+#### Advanced config
+
+In order to go beyond the default configuration, you can edit the config files:
+
+- `./test/config/test.node.config.toml`: configuration of the node, documented [here](./docs/config-file/node-config-doc.md)
+- `./test/config/test.genesis.config.toml`: configuration of the network, documented [here](./docs/config-file/custom_network-config-doc.md)
+- `./test/config/test.prover.config.json`: configuration of the prover/executor
+
 ## Key Components
 
 ### Aggregator
@@ -122,86 +202,6 @@ The L2GasPricer is responsible for calculating the gas price on L2 based on the 
 - L1 Gas Price Fetching: Retrieves the current L1 gas price.
 - Gas Price Calculation: Applies a formula to calculate the suggested L2 gas price.
 - Pool Storage: Stores the calculated L2 gas price in the pool for consumption by the rpc.
-
-## Run a CDK Validium
-
-### Development
-
-For a streamlined development experience, it’s highly recommended to utilize the make utility for tasks such as building and testing the code. To view a comprehensive list of available commands, simply execute `make help` in your terminal.
-
-This step by step guide will result in a local environment that has everything needed to test and develop on a CDK Validium, but note that:
-
-- everything will be run on a ephemeral and local L1 network, once the environment is shutdown, all progress will be lost
-- ZK Proofs are mocked
-- Bridge service and UI is not included as part of this setup, instead there is a pre-funded account
-- ARM devices (such as Apple M1 and M2) are not supported
-
-#### Steps
-
-1. Clone this GitHub repository to your local machine:
-
-```
-git clone https://github.com/0xPolygon/cdk-validium-node.git
-```
-
-2. Navigate to the cloned directory:
-
-```
-cd cdk-validium-node
-```
-
-3. Build the Docker image using the provided Dockerfile:
-
-```
-make build-docker
-```
-
-4. Navigate to the test directory:
-
-```
-cd test
-```
-
-5. Run all needed components:
-
-```
-make run
-```
-
-#### Usage
-
-- L2 RPC endpoint: `http://localhost:8123`
-- L2 Chain ID: 1001
-- L1 RPC endpoint: `http:localhost:8545`
-- L1 Chain ID: 1337
-- Pre funded account private key: `0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80`
-
-#### Troubleshooting
-
-Everything is run using docker, so if anything is not working, first thing is to identify what containers are running or not:
-
-```
-docker compose ps
-```
-
-Then check the logs:
-
-```
-docker logs <problematic conteiner, example: cdk-validium-sync>
-```
-
-Aditionaly, it can be worth checking the DBs:
-
-- StateDB: `psql -h localhost -p 5432 -U state_user state_db`, password: `state_password`
-- PoolDB: `psql -h localhost -p 5433 -U pool_user pool_db`, password: `pool_password`
-
-#### Advanced config
-
-In order to go beyond the default configuration, you can edit the config files:
-
-- `./test/config/test.node.config.toml`: configuration of the node, documented [here](./docs/config-file/node-config-doc.md)
-- `./test/config/test.genesis.config.toml`: configuration of the network, documented [here](./docs/config-file/custom_network-config-doc.md)
-- `./test/config/test.prover.config.json`: configuration of the prover/executor
 
 ## Contribute
 
