@@ -2,6 +2,8 @@
 
 For a full overview of the CDK-Validium please reference the [CDK documentation](https://wiki.polygon.technology/docs/cdk/).
 
+The CDK-Validium solution is made up of several components, start with the [CDK Validium Node](https://github.com/0xPolygon/cdk-validium-node). However, for quick reference, the complete list of components are outlined below:
+
 | Component                                                                     | Description                                                          |
 | ----------------------------------------------------------------------------- | -------------------------------------------------------------------- |
 | [CDK Validium Node](https://github.com/0xPolygon/cdk-validium-node)           | Node implementation for the CDK networks in Validium mode            |
