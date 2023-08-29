@@ -2,8 +2,6 @@
 
 For a full overview of the CDK-Validium please reference the [CDK documentation](https://wiki.polygon.technology/docs/cdk/).
 
-The CDK-Validium solution is made up of several components, start with the [CDK Validium Node](https://github.com/0xPolygon/cdk-validium-node). However, for quick reference, the complete list of components are outlined below:
-
 | Component                                                                     | Description                                                          |
 | ----------------------------------------------------------------------------- | -------------------------------------------------------------------- |
 | [CDK Validium Node](https://github.com/0xPolygon/cdk-validium-node)           | Node implementation for the CDK networks in Validium mode            |
@@ -21,6 +19,8 @@ For an in-depth understanding of the protocol’s specifications, please refer t
 
 ### Development
 
+> ARM devices (such as Apple M1 and M2) are not supported
+
 For a streamlined development experience, it’s highly recommended to utilize the make utility for tasks such as building and testing the code. To view a comprehensive list of available commands, simply execute `make help` in your terminal.
 
 This step by step guide will result in a local environment that has everything needed to test and develop on a CDK Validium, but note that:
@@ -28,7 +28,6 @@ This step by step guide will result in a local environment that has everything n
 - everything will be run on a ephemeral and local L1 network, once the environment is shutdown, all progress will be lost
 - ZK Proofs are mocked
 - Bridge service and UI is not included as part of this setup, instead there is a pre-funded account
-- ARM devices (such as Apple M1 and M2) are not supported
 
 #### Steps
 
