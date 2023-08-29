@@ -82,7 +82,7 @@ docker compose ps
 Then check the logs:
 
 ```
-docker logs <problematic conteiner, example: cdk-validium-sync>
+docker logs <problematic container, example: cdk-validium-sync>
 ```
 
 Aditionaly, it can be worth checking the DBs:
