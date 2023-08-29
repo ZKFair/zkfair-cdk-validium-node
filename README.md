@@ -13,7 +13,7 @@ The CDK-Validium solution is made up of several components, start with the [CDK 
 | [Bridge Service](https://github.com/0xPolygonHermez/zkevm-bridge-service)     | Bridge service implementation for CDK networks                       |
 | [Bridge UI](https://github.com/0xPolygonHermez/zkevm-bridge-ui)               | UI for the CDK networks bridge                                       |
 
-Understanding the underlying protocol is crucial when working with an implementation. This project is based on the Polygon zkEVM network, which is designed to bring scalability to Ethereum-compatible blockchains through the use of zk-Rollups and Validium.
+Understanding the underlying protocol is crucial when working with an implementation. This project is based on the Polygon zkEVM network, which is designed to bring scalability to Ethereum-compatible blockchains.
 
 For an in-depth understanding of the protocol’s specifications, please refer to the [zkEVM Protocol Overview](https://wiki.polygon.technology/docs/zkevm/)
 
