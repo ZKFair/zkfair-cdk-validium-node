@@ -127,58 +127,6 @@ Understanding the underlying protocol is crucial when working with an implementa
 
 For an in-depth understanding of the protocol’s specifications, please refer to the [zkEVM Protocol Overview](https://wiki.polygon.technology/docs/zkevm/)
 
-## Roles of the Network
-
-The node software in a Validium-based network is architected to support multiple roles, each with its own set of required services and components. While some services can run in multiple instances, others are designed to run in a single instance. Below, we outline the roles and their corresponding requirements.
-
-### RPC
-
-This role is open to anyone and serves as the entry point for interacting with the network.
-
-Required Services and Components:
-
-- JSON RPC: Can run in separate instances and supports multiple instances for scalability.
-- Synchronizer: Single instance, can run independently.
-- Executor & Merkletree: Can run on a separate instance.
-- State DB: Utilizes Postgres SQL, can be run in a separate instance.
-
-#### Recommendations:
-
-While only one synchronizer is needed, it’s advised to have exclusive access to an executor instance. The JSON RPC and executor services can benefit from running in multiple instances if performance decreases due to high request volume.
-
-### Sequencer
-
-At the moment, this role is exclusive and can only be performed by a single entity, as enforced by the smart contract.
-
-Required Services and Components:
-
-- JSON RPC: Can run in separate instances and supports multiple instances.
-- Sequencer & Synchronizer: Must run in a single instance together.
-- Executor & Merkletree: Can run on a separate instance.
-- Pool DB: Utilizes Postgres SQL, can be run in a separate instance.
-- State DB: Utilizes Postgres SQL, can be run in a separate instance.
-
-#### Recommendations:
-
-The JSON RPC is essential for receiving transactions. It’s advised to run it in separate instances, potentially more than one, depending on network load. The Sequencer should have exclusive access to an executor instance.
-
-### Aggregator
-
-This role is crucial for transaction batching and proof generation. By default, this role can only be emboidied by a single entity, but it can be made permissionless through the smart contracts.
-
-Required Services and Components:
-
-- Synchronizer: Single instance, can run independently.
-- Executor & Merkletree: Can run on a separate instance.
-- State DB: Utilizes Postgres SQL, can be run in a separate instance.
-- Aggregator: Single instance, can run independently.
-- Prover: Single instance, can run independently.
-- Executor: Single instance, can run independently.
-
-#### Recommendations:
-
-Given the hardware-intensive nature of the Prover, it’s recommended to run it on a separate instance. All other components can run on a single instance if desired.
-
 ## Run a CDK Validium
 
 ### Development
