@@ -185,10 +185,6 @@ Given the hardware-intensive nature of the Prover, it’s recommended to run it 
 
 ## Run a CDK Validium
 
-### Production
-
-TODO: Link to prod guide
-
 ### Development
 
 For a streamlined development experience, it’s highly recommended to utilize the make utility for tasks such as building and testing the code. To view a comprehensive list of available commands, simply execute `make help` in your terminal.
