@@ -19,8 +19,13 @@ func TestDurationUnmarshal(t *testing.T) {
 
 	testCases := []testCase{
 		{
-			name:           "valid duration",
+			name:           "valid duration I",
 			input:          "60s",
+			expectedResult: &Duration{Duration: time.Minute},
+		},
+		{
+			name:           "valid duration II",
+			input:          "1m0s",
 			expectedResult: &Duration{Duration: time.Minute},
 		},
 		{
@@ -49,6 +54,30 @@ func TestDurationUnmarshal(t *testing.T) {
 			if err != nil {
 				require.Equal(t, testCase.expectedErr.Error(), err.Error())
 			}
+		})
+	}
+}
+
+func TestDurationMarshal(t *testing.T) {
+	type testCase struct {
+		name           string
+		input          *Duration
+		expectedResult string
+	}
+
+	testCases := []testCase{
+		{
+			name:           "valid duration",
+			input:          &Duration{Duration: time.Minute},
+			expectedResult: `"1m0s"`,
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			byteDuration, err := json.Marshal(testCase.input)
+			require.NoError(t, err)
+			require.Equal(t, string(byteDuration), testCase.expectedResult)
 		})
 	}
 }
