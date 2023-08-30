@@ -114,6 +114,8 @@ func TestDataCommittee(t *testing.T) {
 			WsURL:                "ws://cdk-validium-mock-l1-network:8546",
 			CDKValidiumAddress:   operations.DefaultL1CDKValidiumSmartContract,
 			DataCommitteeAddress: operations.DefaultL1DataCommitteeContract,
+			Timeout:              cTypes.Duration{time.Second},
+			RetryPeriod:          cTypes.Duration{time.Second},
 		},
 		PrivateKey: cTypes.KeystoreFileConfig{
 			Path:     ksFile,
