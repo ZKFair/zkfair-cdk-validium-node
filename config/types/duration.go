@@ -11,6 +11,11 @@ type Duration struct {
 	time.Duration `validate:"required"`
 }
 
+// MarshalText marshalls time duration into text.
+func (d *Duration) MarshalText() ([]byte, error) {
+	return []byte(d.String()), nil
+}
+
 // UnmarshalText unmarshalls time duration from text.
 func (d *Duration) UnmarshalText(data []byte) error {
 	duration, err := time.ParseDuration(string(data))
