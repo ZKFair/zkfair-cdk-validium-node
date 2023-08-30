@@ -170,7 +170,8 @@ func TestDataCommittee(t *testing.T) {
 		err = os.WriteFile(cfgFile, file, 0644)
 		require.NoError(t, err)
 		// Write private key keystore file
-		require.NoError(t, createKeyStore(m.pk, ksFile, ksPass))
+		err = createKeyStore(m.pk, ksFile, ksPass)
+		require.NoError(t, err)
 		// Run DAC node
 		cmd := exec.Command(
 			"docker", "run", "-d",
