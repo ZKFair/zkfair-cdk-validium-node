@@ -58,7 +58,7 @@ func TestDurationUnmarshal(t *testing.T) {
 	}
 }
 
-func TestDurationMarshal(t *testing.T) {
+func TestDurationMarshalText(t *testing.T) {
 	type testCase struct {
 		name           string
 		input          *Duration
@@ -78,6 +78,52 @@ func TestDurationMarshal(t *testing.T) {
 			byteDuration, err := json.Marshal(testCase.input)
 			require.NoError(t, err)
 			require.Equal(t, string(byteDuration), testCase.expectedResult)
+		})
+	}
+}
+
+func TestDurationMarshalJSON(t *testing.T) {
+	type foo struct {
+		F *Duration `json:"f"`
+	}
+	type bar struct {
+		B Duration `json:"f"`
+	}
+	type testCase struct {
+		name     string
+		inputFoo foo
+		inputBar bar
+		expected string
+	}
+	testCases := []testCase{
+		{
+			name:     "valid duration",
+			inputFoo: foo{F: &Duration{Duration: time.Minute}},
+			inputBar: bar{B: Duration{Duration: time.Minute}},
+			expected: `{"f":"1m0s"}`,
+		},
+		{
+			name:     "valid duration",
+			inputFoo: foo{F: &Duration{Duration: time.Hour + time.Minute}},
+			inputBar: bar{B: Duration{Duration: time.Hour + time.Minute}},
+			expected: `{"f":"1h1m0s"}`,
+		},
+		{
+			name:     "valid duration",
+			inputFoo: foo{F: &Duration{Duration: time.Hour}},
+			inputBar: bar{B: Duration{Duration: time.Hour}},
+			expected: `{"f":"1h0m0s"}`,
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			fooBytes, err := json.Marshal(testCase.inputFoo)
+			require.NoError(t, err)
+			require.Equal(t, string(fooBytes), testCase.expected)
+			barBytes, err := json.Marshal(testCase.inputBar)
+			require.NoError(t, err)
+			require.Equal(t, string(barBytes), testCase.expected)
 		})
 	}
 }
