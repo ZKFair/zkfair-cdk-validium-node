@@ -38,7 +38,7 @@ services:
 
   grafana-db:
     container_name: grafana-db
-    image: postgres
+    image: postgres:15
     expose:
       - 5432
     environment:
@@ -160,7 +160,7 @@ services:
 
   cdk-validium-state-db:
     container_name: cdk-validium-state-db
-    image: postgres
+    image: postgres:15
     deploy:
       resources:
         limits:
@@ -182,7 +182,7 @@ services:
 
   cdk-validium-pool-db:
     container_name: cdk-validium-pool-db
-    image: postgres
+    image: postgres:15
     deploy:
       resources:
         limits:
@@ -202,7 +202,7 @@ services:
 
   cdk-validium-event-db:
     container_name: cdk-validium-event-db
-    image: postgres
+    image: postgres:15
     deploy:
       resources:
         limits:
@@ -243,7 +243,7 @@ services:
 
   cdk-validium-explorer-l1-db:
     container_name: cdk-validium-explorer-l1-db
-    image: postgres
+    image: postgres:15
     ports:
       - 5436:5432
     environment:
@@ -297,7 +297,7 @@ services:
 
   cdk-validium-explorer-l2-db:
     container_name: cdk-validium-explorer-l2-db
-    image: postgres
+    image: postgres:15
     ports:
       - 5437:5432
     environment:
@@ -338,7 +338,7 @@ services:
 
   cdk-validium-prover:
     container_name: cdk-validium-prover
-    image: hermeznetwork/zkevm-prover:v2.2.0-RC4
+    image: hermeznetwork/zkevm-prover:v2.2.0
     ports:
       # - 50051:50051 # Prover
       - 50052:50052 # Mock prover
@@ -348,17 +348,6 @@ services:
       - ./config/test.prover.config.json:/usr/src/app/config.json
     command: >
       zkProver -c /usr/src/app/config.json
-
-  zkprover-mock:
-    container_name: zkprover-mock
-    image: hermeznetwork/zkprover-mock:latest
-    ports:
-      - 43061:43061 # MT
-      - 43071:43071 # Executor
-    volumes:
-      - ./vectors/src:/app/testvectors
-    command: >
-      /app/zkprover-mock server --statedb-port 43061 --executor-port 43071 --test-vector-path /app/testvectors
 
   cdk-validium-approve:
     container_name: cdk-validium-approve
@@ -376,7 +365,7 @@ services:
 
   cdk-validium-permissionless-db:
     container_name: cdk-validium-permissionless-db
-    image: postgres
+    image: postgres:15
     deploy:
       resources:
         limits:
@@ -473,7 +462,7 @@ services:
 
   cdk-validium-permissionless-prover:
     container_name: cdk-validium-permissionless-prover
-    image: hermeznetwork/zkevm-prover:v2.2.0-RC4
+    image: hermeznetwork/zkevm-prover:v2.2.0
     ports:
       # - 50058:50058 # Prover
       - 50059:50052 # Mock prover
@@ -497,13 +486,13 @@ services:
       - ../config/metrics/prometheus:/etc/prometheus
 
   cdk-validium-sh:
-    container_name: zkevm-sh
+    container_name: cdk-validium-sh
     image: cdk-validium-node
     stdin_open: true 
     tty: true
     environment:
-      - CDK_VALIDIUM_NODE_STATEDB_HOST=supernets-state-db
-      - CDK_VALIDIUM_NODE_POOL_DB_HOST=supernets-pool-db
+      - CDK_VALIDIUM_NODE_STATEDB_HOST=cdk-validium-state-db
+      - CDK_VALIDIUM_NODE_POOL_DB_HOST=cdk-validium-pool-db
     volumes:
       - ./config/test.node.config.toml:/app/config.toml
       - ./config/test.genesis.config.json:/app/genesis.json

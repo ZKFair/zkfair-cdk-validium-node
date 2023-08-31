@@ -138,6 +138,7 @@ func NewSimulatedEtherman(cfg Config, auth *bind.TransactOpts) (
 		DataCommittee:         da,
 		SCAddresses:           []common.Address{poeAddr, exitManagerAddr, dataCommitteeAddr},
 		auth:                  map[common.Address]bind.TransactOpts{},
+		cfg:                   cfg,
 	}
 	err = c.AddOrReplaceAuth(*auth)
 	if err != nil {
