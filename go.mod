@@ -146,7 +146,7 @@ require (
 )
 
 require (
-	github.com/0xPolygon/cdk-data-availability v0.0.0-20230824143045-5ff4265f5f6f
+	github.com/0xPolygon/cdk-data-availability v0.0.0-20230830141533-4064ada790a6
 	github.com/0xPolygonHermez/zkevm-node v0.1.0-RC8.0.20230601153103-86d9fb808691
 	github.com/golang/protobuf v1.5.3
 	github.com/prometheus/client_golang v1.16.0
