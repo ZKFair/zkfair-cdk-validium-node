@@ -53,3 +53,22 @@ func (c *Client) BatchByNumber(ctx context.Context, number *big.Int) (*types.Bat
 
 	return result, nil
 }
+
+func (c *Client) BatchByNumberNoFullTxs(ctx context.Context, number *big.Int) (*types.Batch, error) {
+	response, err := JSONRPCCall(c.url, "zkevm_getBatchByNumber", types.ToBatchNumArg(number), false)
+	if err != nil {
+		return nil, err
+	}
+
+	if response.Error != nil {
+		return nil, fmt.Errorf("%v %v", response.Error.Code, response.Error.Message)
+	}
+
+	var result *types.Batch
+	err = json.Unmarshal(response.Result, &result)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}

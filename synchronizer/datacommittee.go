@@ -113,7 +113,7 @@ func (s *ClientSynchronizer) getDataFromCommittee(batchNum uint64, expectedTrans
 }
 
 func (s *ClientSynchronizer) getDataFromTrustedSequencer(batchNum uint64, expectedTransactionsHash common.Hash) ([]byte, error) {
-	b, err := s.zkEVMClient.BatchByNumber(s.ctx, big.NewInt(int64(batchNum)))
+	b, err := s.zkEVMClient.BatchByNumberNoFullTxs(s.ctx, big.NewInt(int64(batchNum)))
 	if err != nil {
 		return nil, fmt.Errorf("failed to get batch num %d from trusted sequencer: %w", batchNum, err)
 	}

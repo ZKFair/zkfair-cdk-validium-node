@@ -78,4 +78,5 @@ type poolInterface interface {
 type zkEVMClientInterface interface {
 	BatchNumber(ctx context.Context) (uint64, error)
 	BatchByNumber(ctx context.Context, number *big.Int) (*types.Batch, error)
+	BatchByNumberNoFullTxs(ctx context.Context, number *big.Int) (*types.Batch, error)
 }
