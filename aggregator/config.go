@@ -73,4 +73,7 @@ type Config struct {
 	// which a proof in generating state is considered to be stuck and
 	// allowed to be cleared.
 	GeneratingProofCleanupThreshold string `mapstructure:"GeneratingProofCleanupThreshold"`
+
+	// GenerateProofDelay is the delay to start generating proof for a batch since the batch's timestamp
+	GenerateProofDelay types.Duration `mapstructure:"GenerateProofDelay"`
 }
