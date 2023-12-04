@@ -950,6 +950,22 @@ func TestTryGenerateBatchProof(t *testing.T) {
 				assert.NoError(err)
 			},
 		},
+		{
+			name: "delay on generate batch proof ok",
+			setup: func(m mox, a *Aggregator) {
+				a.GenerateProofDelay = configTypes.NewDuration(2000000000)
+				m.proverMock.On("Name").Return(proverName).Times(2)
+				m.proverMock.On("ID").Return(proverID).Times(2)
+				m.proverMock.On("Addr").Return("addr")
+				m.stateMock.On("GetLastVerifiedBatch", mock.MatchedBy(matchProverCtxFn), nil).Return(&lastVerifiedBatch, nil).Once()
+				batchToProve.Timestamp = time.Now().Add(-configTypes.NewDuration(1000000000).Duration)
+				m.stateMock.On("GetVirtualBatchToProve", mock.MatchedBy(matchProverCtxFn), lastVerifiedBatchNum, nil).Return(&batchToProve, nil).Once()
+			},
+			asserts: func(result bool, a *Aggregator, err error) {
+				assert.False(result)
+				assert.NoError(err)
+			},
+		},
 	}
 
 	for _, tc := range testCases {

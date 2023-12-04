@@ -57,6 +57,7 @@ type Aggregator struct {
 	TimeCleanupLockedProofs types.Duration
 	StateDBMutex            *sync.Mutex
 	TimeSendFinalProofMutex *sync.RWMutex
+	GenerateProofDelay      types.Duration
 
 	finalProof     chan finalProofMsg
 	verifyingProof bool
@@ -91,6 +92,7 @@ func New(
 		StateDBMutex:            &sync.Mutex{},
 		TimeSendFinalProofMutex: &sync.RWMutex{},
 		TimeCleanupLockedProofs: cfg.CleanupLockedProofsInterval,
+		GenerateProofDelay:      cfg.GenerateProofDelay,
 
 		finalProof: make(chan finalProofMsg),
 	}
@@ -759,6 +761,13 @@ func (a *Aggregator) getAndLockBatchToProve(ctx context.Context, prover proverIn
 	batchToVerify, err := a.State.GetVirtualBatchToProve(ctx, lastVerifiedBatch.BatchNumber, nil)
 	if err != nil {
 		return nil, nil, err
+	}
+
+	// check delay for generating proof, if not reaches delay, pretend that we didn't find batch to prove
+	if batchToVerify.Timestamp.Add(a.GenerateProofDelay.Duration).After(time.Now()) {
+		log.Debugf("Found virtual batch %d, batch timestamp %v, expected to start generating proof after %v",
+			batchToVerify.BatchNumber, batchToVerify.Timestamp.Unix(), batchToVerify.Timestamp.Add(a.GenerateProofDelay.Duration).Unix())
+		return nil, nil, state.ErrNotFound
 	}
 
 	log.Infof("Found virtual batch %d pending to generate proof", batchToVerify.BatchNumber)
