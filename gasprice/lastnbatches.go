@@ -15,6 +15,8 @@ const sampleNumber = 3 // Number of transactions sampled in a batch.
 type LastNL2BlocksGasPrice struct {
 	lastL2BlockNumber uint64
 	lastPrice         *big.Int
+	maxPrice          *big.Int
+	ignorePrice       *big.Int
 
 	cfg Config
 	ctx context.Context
@@ -29,10 +31,13 @@ type LastNL2BlocksGasPrice struct {
 // newLastNL2BlocksGasPriceSuggester init gas price suggester for last n l2 blocks strategy.
 func newLastNL2BlocksGasPriceSuggester(ctx context.Context, cfg Config, state stateInterface, pool poolInterface) *LastNL2BlocksGasPrice {
 	return &LastNL2BlocksGasPrice{
-		cfg:   cfg,
-		ctx:   ctx,
-		state: state,
-		pool:  pool,
+		cfg:         cfg,
+		ctx:         ctx,
+		state:       state,
+		pool:        pool,
+		lastPrice:   big.NewInt(0).SetUint64(cfg.DefaultGasPriceWei),
+		maxPrice:    big.NewInt(0).SetUint64(cfg.MaxGasPriceWei),
+		ignorePrice: big.NewInt(0).SetUint64(cfg.IgnorePrice),
 	}
 }
 
@@ -55,14 +60,14 @@ func (g *LastNL2BlocksGasPrice) UpdateGasPriceAvg() {
 
 	var (
 		sent, exp int
-		number    = lastL2BlockNumber
+		number    = l2BlockNumber
 		result    = make(chan results, g.cfg.CheckBlocks)
 		quit      = make(chan struct{})
 		results   []*big.Int
 	)
 
 	for sent < g.cfg.CheckBlocks && number > 0 {
-		go g.getL2BlockTxsTips(g.ctx, number, sampleNumber, g.cfg.IgnorePrice, result, quit)
+		go g.getL2BlockTxsTips(g.ctx, number, sampleNumber, g.ignorePrice, result, quit)
 		sent++
 		exp++
 		number--
@@ -87,8 +92,8 @@ func (g *LastNL2BlocksGasPrice) UpdateGasPriceAvg() {
 		sort.Sort(bigIntArray(results))
 		price = results[(len(results)-1)*g.cfg.Percentile/100]
 	}
-	if price.Cmp(g.cfg.MaxPrice) > 0 {
-		price = g.cfg.MaxPrice
+	if price.Cmp(g.maxPrice) > 0 {
+		price = g.maxPrice
 	}
 
 	g.cacheLock.Lock()

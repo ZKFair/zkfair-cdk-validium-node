@@ -1,8 +1,6 @@
 package gasprice
 
 import (
-	"math/big"
-
 	"github.com/0xPolygon/cdk-validium-node/config/types"
 )
 
@@ -26,8 +24,8 @@ type Config struct {
 	DefaultGasPriceWei uint64 `mapstructure:"DefaultGasPriceWei"`
 	// MaxGasPriceWei is used to limit the gas price returned by the follower gas pricer to a maximum value. It is ignored if 0.
 	MaxGasPriceWei            uint64         `mapstructure:"MaxGasPriceWei"`
-	MaxPrice                  *big.Int       `mapstructure:"MaxPrice"`
-	IgnorePrice               *big.Int       `mapstructure:"IgnorePrice"`
+	MaxPrice                  uint64         `mapstructure:"MaxPrice"`
+	IgnorePrice               uint64         `mapstructure:"IgnorePrice"`
 	CheckBlocks               int            `mapstructure:"CheckBlocks"`
 	Percentile                int            `mapstructure:"Percentile"`
 	UpdatePeriod              types.Duration `mapstructure:"UpdatePeriod"`
