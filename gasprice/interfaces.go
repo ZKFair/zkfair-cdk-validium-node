@@ -23,6 +23,8 @@ type poolInterface interface {
 type stateInterface interface {
 	GetLastL2BlockNumber(ctx context.Context, dbTx pgx.Tx) (uint64, error)
 	GetTxsByBlockNumber(ctx context.Context, blockNumber uint64, dbTx pgx.Tx) ([]*types.Transaction, error)
+	GetLastBatchNumber(ctx context.Context, dbTx pgx.Tx) (uint64, error)
+	GetTxsByBatchNumber(ctx context.Context, batchNumber uint64, dbTx pgx.Tx) ([]*types.Transaction, error)
 }
 
 // ethermanInterface contains the methods required to interact with ethereum.
