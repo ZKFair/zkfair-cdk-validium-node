@@ -66,6 +66,11 @@ func (_m *zkEVMClientMock) BatchNumber(ctx context.Context) (uint64, error) {
 	return r0, r1
 }
 
+func (_m *zkEVMClientMock) BatchByNumberNoFullTxs(ctx context.Context, number *big.Int) (*types.Batch, error) {
+
+	return nil, nil
+}
+
 type mockConstructorTestingTnewZkEVMClientMock interface {
 	mock.TestingT
 	Cleanup(func())
