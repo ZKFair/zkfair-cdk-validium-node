@@ -2,6 +2,7 @@ package sequencer
 
 import (
 	"github.com/0xPolygon/cdk-validium-node/config/types"
+	"github.com/ethereum/go-ethereum/common"
 )
 
 // Config represents the configuration of a sequencer
@@ -61,6 +62,9 @@ type Config struct {
 
 	// EffectiveGasPrice is the config for the gas price
 	EffectiveGasPrice EffectiveGasPriceCfg `mapstructure:"EffectiveGasPrice"`
+
+	// L2Coinbase is the address receives the L2 fee, should be consistent with the  L2Coinbase in SequenceSender
+	L2Coinbase common.Address `mapstructure:"L2Coinbase"`
 }
 
 // FinalizerCfg contains the finalizer's configuration properties
