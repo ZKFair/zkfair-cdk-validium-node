@@ -65,6 +65,9 @@ var (
 	// ErrGasPrice is returned if the transaction has specified lower gas price than the minimum allowed.
 	ErrGasPrice = errors.New("gas price too low")
 
+	// ErrGasTooHigh is returned if the transaction has specified higher gas price than the max allowed.
+	ErrGasTooHigh = errors.New("gas limit too high")
+
 	// ErrSenderDisallowedSendTx is returned when transactions by sender are is disallowed by policy
 	ErrSenderDisallowedSendTx = errors.New("sender disallowed send_tx by policy")
 

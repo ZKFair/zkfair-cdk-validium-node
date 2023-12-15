@@ -411,6 +411,13 @@ func (p *Pool) validateTx(ctx context.Context, poolTx Transaction) error {
 		return ErrInsufficientFunds
 	}
 
+	// max gas limit check
+	if p.cfg.DefaultMaxGasAllowed > 0 {
+		if poolTx.Gas() > p.cfg.DefaultMaxGasAllowed {
+			return ErrGasTooHigh
+		}
+	}
+
 	// Ensure the transaction has more gas than the basic poolTx fee.
 	intrGas, err := IntrinsicGas(poolTx.Transaction)
 	if err != nil {
