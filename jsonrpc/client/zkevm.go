@@ -54,6 +54,8 @@ func (c *Client) BatchByNumber(ctx context.Context, number *big.Int) (*types.Bat
 	return result, nil
 }
 
+// BatchByNumberNoFullTxs returns a batch from the current canonical chain without full tx data.
+// If number is nil, the latest known batch is returned.
 func (c *Client) BatchByNumberNoFullTxs(ctx context.Context, number *big.Int) (*types.Batch, error) {
 	response, err := JSONRPCCall(c.url, "zkevm_getBatchByNumber", types.ToBatchNumArg(number), false)
 	if err != nil {
