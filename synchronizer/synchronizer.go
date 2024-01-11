@@ -254,8 +254,36 @@ func (s *ClientSynchronizer) Sync() error {
 				continue
 			}
 			log.Infof("latestSequencedBatchNumber: %d, latestSyncedBatch: %d, lastVerifiedBatchNumber: %d", latestSequencedBatchNumber, latestSyncedBatch, lastVerifiedBatchNumber)
-			// Sync trusted state
-			if latestSyncedBatch >= latestSequencedBatchNumber {
+
+			if !s.cfg.SyncOnlyTrusted {
+				// Sync trusted state
+				if latestSyncedBatch >= latestSequencedBatchNumber {
+					startTrusted := time.Now()
+					log.Info("Syncing trusted state")
+					err = s.syncTrustedState(latestSyncedBatch)
+					metrics.FullTrustedSyncTime(time.Since(startTrusted))
+					if err != nil {
+						log.Warn("error syncing trusted state. Error: ", err)
+						continue
+					}
+					waitDuration = s.cfg.SyncInterval.Duration
+				}
+				//Sync L1Blocks
+				startL1 := time.Now()
+				lastEthBlockSynced, err = s.syncBlocks(lastEthBlockSynced)
+				metrics.FullL1SyncTime(time.Since(startL1))
+				if err != nil {
+					log.Warn("error syncing blocks: ", err)
+					lastEthBlockSynced, err = s.state.GetLastBlock(s.ctx, nil)
+					if err != nil {
+						log.Fatal("error getting lastEthBlockSynced to resume the synchronization... Error: ", err)
+					}
+					if s.ctx.Err() != nil {
+						continue
+					}
+				}
+			} else {
+				// Sync trusted state
 				startTrusted := time.Now()
 				log.Info("Syncing trusted state")
 				err = s.syncTrustedState(latestSyncedBatch)
@@ -265,20 +293,6 @@ func (s *ClientSynchronizer) Sync() error {
 					continue
 				}
 				waitDuration = s.cfg.SyncInterval.Duration
-			}
-			//Sync L1Blocks
-			startL1 := time.Now()
-			lastEthBlockSynced, err = s.syncBlocks(lastEthBlockSynced)
-			metrics.FullL1SyncTime(time.Since(startL1))
-			if err != nil {
-				log.Warn("error syncing blocks: ", err)
-				lastEthBlockSynced, err = s.state.GetLastBlock(s.ctx, nil)
-				if err != nil {
-					log.Fatal("error getting lastEthBlockSynced to resume the synchronization... Error: ", err)
-				}
-				if s.ctx.Err() != nil {
-					continue
-				}
 			}
 			metrics.FullSyncIterationTime(time.Since(start))
 			log.Info("L1 state fully synchronized")
